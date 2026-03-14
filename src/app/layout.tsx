@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Dangerous Goods logistics, packaging, freight forwarding, customs clearance, and warehousing services.",
 };
 
+import { FloatingActions, ScrollProgress } from "@/components/FloatingActions";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${roboto.variable} font-body antialiased`}
       >
+        <ScrollProgress />
         {children}
+        <FloatingActions />
       </body>
     </html>
   );
