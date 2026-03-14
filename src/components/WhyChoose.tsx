@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Shield, Globe2, Award, Zap, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -38,12 +38,12 @@ const features = [
   },
 ];
 
-const containerVariants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12 } },
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.12 } },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, x: 40 },
   show: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
@@ -144,7 +144,7 @@ export function WhyChoose() {
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  whileHover={{ x: 8, scale: 1.02 }}
+                  whileHover={{ scale: 1.02 }}
                   className="flex items-center gap-5 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-lg hover:border-primary/20 transition-all group cursor-pointer"
                 >
                   <div className={`bg-gradient-to-br ${feature.gradient} p-3.5 rounded-xl text-white shadow-md group-hover:scale-110 transition-transform duration-300`}>
