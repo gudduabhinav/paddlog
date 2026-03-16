@@ -318,9 +318,9 @@ export default function AdminDashboard() {
             )}
             
             <motion.aside 
-              initial={isMobile ? { x: -320 } : false}
+              initial={isMobile ? { x: -320 } : undefined}
               animate={{ x: 0 }}
-              exit={isMobile ? { x: -320 } : false}
+              exit={isMobile ? { x: -320 } : undefined}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className={cn(
                 "bg-white border-r border-slate-200 flex flex-col p-8 font-roboto",
