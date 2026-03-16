@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Users, Package, Bell,
   Trash2, LogOut, Settings2, Eye, ShieldCheck, Zap, Activity, Menu,
-  RefreshCcw, Database, Volume2, VolumeX, Download, X as CloseIcon, AlertTriangle, MessageSquare, Phone,
+  RefreshCcw, Volume2, VolumeX, Download, X as CloseIcon, AlertTriangle, MessageSquare, Phone,
   MapPin, Navigation, Clock, CreditCard, Box, Calendar, TrendingUp, Globe, CheckCircle2
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -145,6 +145,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const markAsViewed = async (item: any, type: 'lead' | 'booking') => {
+    if (type === 'lead' && !item.viewed) {
+      try {
+        await supabase.from('contacts').update({ viewed: true }).eq('id', item.id);
+        setContacts(prev => prev.map(c => c.id === item.id ? { ...c, viewed: true } : c));
+      } catch {}
+    }
+    setSelectedDetail({ ...item, _detailType: type });
+  };
+
   const confirmDelete = async () => {
     if (!deleteId || isDeleting) return;
     setIsDeleting(true);
@@ -168,6 +178,104 @@ export default function AdminDashboard() {
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
   };
 
+  const exportToPDF = (item: any, type: string) => {
+    const name = item.name || item.customer_name || 'Unknown';
+    const phone = item.phone || item.customer_phone || 'N/A';
+    const email = item.email || item.customer_email || '';
+    const status = item.status || 'pending';
+    const date = new Date(item.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+    const logoUrl = window.location.origin + '/logo.png';
+
+    let details = item.service_details || item.message || {};
+    if (typeof details === 'string' && details.startsWith('{')) { try { details = JSON.parse(details); } catch(e) {} }
+    const SKIP = ['name','email','phone','customer_name','customer_email','customer_phone','id','created_at'];
+    const LABELS: any = { serviceId:'Service Type', isDG:'Dangerous Goods', unNumber:'UN Number', packingGroup:'Packing Group', origin:'Origin Hub', destination:'Target Hub', cargoType:'Cargo Classification', boxType:'Packaging Type', isImport:'Importation' };
+    const getLabel = (k: string) => LABELS[k] || k.replace(/([A-Z])/g,' $1').replace(/_/g,' ').trim();
+    const fmtVal = (v: any) => { if (typeof v === 'boolean') return v ? 'Yes' : 'No'; if (v === 'true') return 'Yes'; if (v === 'false') return 'No'; return String(v); };
+    const rows = typeof details === 'object' ? Object.entries(details).filter(([k,v]) =>
+      !SKIP.includes(k.toLowerCase()) && v !== null && v !== undefined && v !== '' && v !== 'null' && v !== 'undefined'
+    ) : [];
+
+    const STATUS_COLORS: any = { pending: '#f59e0b', verified: '#3b82f6', called: '#a855f7', completed: '#10b981' };
+    const detailRows = rows.map(([k,v]) => `
+      <tr>
+        <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap">${getLabel(k)}</td>
+        <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;color:#1e293b;font-size:13px;font-weight:600;text-align:right">${fmtVal(v)}</td>
+      </tr>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Paddlog ${type} Report – ${name}</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',Arial,sans-serif;background:#f8fafc;color:#1e293b}@media print{body{background:#fff}.no-print{display:none}}</style></head>
+<body style="padding:0">
+  <div style="max-width:700px;margin:0 auto;background:#fff;min-height:100vh">
+    <!-- Header Banner -->
+    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);padding:36px 40px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:16px">
+        <img src="${logoUrl}" style="height:52px;width:auto;object-fit:contain;filter:brightness(1.1)" />
+      </div>
+      <div style="text-align:right">
+        <div style="color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em">Report Type</div>
+        <div style="color:#fff;font-size:18px;font-weight:900;letter-spacing:-0.02em;margin-top:2px">${type.toUpperCase()} REPORT</div>
+        <div style="color:rgba(255,255,255,0.4);font-size:10px;margin-top:4px">${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div style="background:${STATUS_COLORS[status] || '#f59e0b'}15;border-left:4px solid ${STATUS_COLORS[status] || '#f59e0b'};padding:14px 40px;display:flex;align-items:center;gap:10px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${STATUS_COLORS[status] || '#f59e0b'}"></div>
+      <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:${STATUS_COLORS[status] || '#f59e0b'}">${status}</span>
+      <span style="color:#94a3b8;font-size:11px;margin-left:auto">ID: ${item.id?.slice(0,12) || 'N/A'}</span>
+    </div>
+
+    <!-- Client Section -->
+    <div style="padding:32px 40px">
+      <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#94a3b8;margin-bottom:16px">Client Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+          <div style="font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:4px">Full Name</div>
+          <div style="font-size:18px;font-weight:900;color:#0f172a">${name}</div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+          <div style="font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:4px">Phone</div>
+          <div style="font-size:18px;font-weight:900;color:#0f172a">${phone}</div>
+        </div>
+        ${email ? `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+          <div style="font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:4px">Email</div>
+          <div style="font-size:14px;font-weight:700;color:#0f172a;word-break:break-all">${email}</div>
+        </div>` : ''}
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+          <div style="font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-bottom:4px">Registered On</div>
+          <div style="font-size:14px;font-weight:700;color:#0f172a">${date}</div>
+        </div>
+      </div>
+    </div>
+
+    ${rows.length > 0 ? `
+    <!-- Technical Specs -->
+    <div style="padding:0 40px 32px">
+      <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#94a3b8;margin-bottom:16px">Shipment Details</div>
+      <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
+        <table style="width:100%;border-collapse:collapse">
+          ${detailRows}
+        </table>
+      </div>
+    </div>` : ''}
+
+    <!-- Footer -->
+    <div style="margin:0 40px;padding:20px 0;border-top:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="${logoUrl}" style="height:24px;width:auto;object-fit:contain;opacity:0.5" />
+        <span style="color:#94a3b8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em">Paddlog Logistics</span>
+      </div>
+      <span style="color:#cbd5e1;font-size:10px">Confidential · Admin Report · ${new Date().getFullYear()}</span>
+    </div>
+  </div>
+  <script>window.onload=function(){window.print();}<\/script>
+</body></html>`;
+
+    const win = window.open('','_blank');
+    if (win) { win.document.write(html); win.document.close(); }
+  };
+
   // ─── LOGIN SCREEN ────────────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
@@ -183,9 +291,7 @@ export default function AdminDashboard() {
         >
           <div className="bg-[#111827]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl">
             <div className="flex flex-col items-center mb-8">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center shadow-lg shadow-red-900/40 mb-4">
-                <img src="/logo.png" className="w-12 h-12 object-contain" alt="Logo" />
-              </div>
+              <img src="/logo.png" className="h-20 w-auto object-contain drop-shadow-2xl mb-4" alt="Paddlog Logo" />
               <h1 className="text-white text-2xl font-bold">Paddlog Command</h1>
               <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">Admin Access Portal</p>
             </div>
@@ -250,10 +356,7 @@ export default function AdminDashboard() {
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 h-16 bg-[#0D1117] border-b border-white/10 flex items-center justify-between px-5 z-[60]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
-              <img src="/logo.png" className="w-5 h-5 object-contain" alt="logo" />
-            </div>
-            <span className="font-bold text-white text-sm">Paddlog Admin</span>
+            <img src="/logo.png" className="h-9 w-auto object-contain drop-shadow-lg" alt="Paddlog Logo" />
           </div>
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white">
             {isSidebarOpen ? <CloseIcon size={20} /> : <Menu size={20} />}
@@ -280,18 +383,12 @@ export default function AdminDashboard() {
               )}
             >
               {/* Logo Area */}
-              <div className="flex items-center gap-3 px-3 mb-10">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center shadow-lg shadow-red-900/40">
-                  <img src="/logo.png" className="w-7 h-7 object-contain" alt="logo" />
-                </div>
-                <div>
-                  <div className="font-black text-white text-base tracking-tight">PADDLOG</div>
-                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Admin Panel</div>
-                </div>
+              <div className="flex items-start px-2 mb-6">
+                <img src="/logo.png" className="h-28 w-auto object-contain drop-shadow-lg" alt="Paddlog Logo" />
               </div>
 
               {/* Status Badge */}
-              <div className="mx-3 mb-8 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+              <div className="mx-3 mb-6 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-emerald-400 text-[11px] font-bold uppercase tracking-wider">Systems Online</span>
               </div>
@@ -330,11 +427,7 @@ export default function AdminDashboard() {
               </nav>
 
               {/* Bottom */}
-              <div className="mt-auto space-y-2 px-1">
-                <div className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-xl">
-                  <Database size={13} className="text-slate-500" />
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Supabase · Stable</span>
-                </div>
+              <div className="mt-auto px-1">
                 <button onClick={logout} className="w-full flex items-center justify-center gap-3 px-4 py-3.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-red-500/20">
                   <LogOut size={16} /> Logout
                 </button>
@@ -387,58 +480,230 @@ export default function AdminDashboard() {
         <div className="flex-1 p-5 md:p-8 overflow-auto">
 
           {/* ── OVERVIEW ─────────────────────────── */}
-          {activeTab === 'overview' && (
+          {activeTab === 'overview' && (() => {
+            const countByStatus = (arr: any[]) => {
+              const r = { pending: 0, verified: 0, called: 0, completed: 0 };
+              arr.forEach(i => { const s = (i.status || 'pending') as keyof typeof r; if (r[s] !== undefined) r[s]++; });
+              return r;
+            };
+            const lc = countByStatus(contacts);
+            const bc = countByStatus(bookings);
+            const unviewedLeads = contacts.filter(c => !c.viewed).length;
+            const viewedLeads = contacts.filter(c => c.viewed).length;
+            const sourceCount = contacts.reduce((acc: any, c) => {
+              const src = c.source || 'contact_form';
+              acc[src] = (acc[src] || 0) + 1;
+              return acc;
+            }, {});
+            const SOURCE_LABELS: any = {
+              contact_form: { label: 'Contact Form', color: 'from-blue-500 to-cyan-500', dot: 'bg-blue-400' },
+              exit_popup: { label: 'Exit Popup', color: 'from-rose-500 to-red-600', dot: 'bg-rose-400' },
+              other: { label: 'Other', color: 'from-slate-500 to-slate-600', dot: 'bg-slate-400' },
+            };
+            return (
             <div className="space-y-8 max-w-7xl mx-auto">
-              {/* Stat Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+              {/* Top Stat Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: "Total Leads",  value: contacts.length, icon: Users,      gradient: "from-blue-500 to-cyan-500",       glow: "shadow-blue-900/30",    onClick: () => setActiveTab('leads') },
-                  { label: "Bookings",     value: bookings.length, icon: Package,    gradient: "from-emerald-500 to-teal-500",    glow: "shadow-emerald-900/30", onClick: () => setActiveTab('bookings') },
-                  { label: "Uptime",       value: "100%",          icon: Activity,   gradient: "from-violet-500 to-purple-600",   glow: "shadow-violet-900/30",  onClick: fetchData },
+                  { label: "Total Leads",    value: contacts.length, icon: Users,      gradient: "from-blue-500 to-cyan-500",     glow: "shadow-blue-900/30",    onClick: () => setActiveTab('leads') },
+                  { label: "Total Bookings", value: bookings.length, icon: Package,    gradient: "from-emerald-500 to-teal-500",  glow: "shadow-emerald-900/30", onClick: () => setActiveTab('bookings') },
+                  { label: "Unread Leads",   value: unviewedLeads,   icon: Bell,       gradient: "from-amber-500 to-orange-500",  glow: "shadow-amber-900/30",   onClick: () => setActiveTab('leads') },
+                  { label: "Pending Action", value: lc.pending + bc.pending, icon: Activity, gradient: "from-red-500 to-rose-600", glow: "shadow-red-900/30", onClick: fetchData },
                 ].map((card, i) => (
                   <motion.div key={i} whileHover={{ y: -4, scale: 1.01 }} onClick={card.onClick}
-                    className="bg-[#111827] border border-white/10 rounded-3xl p-7 cursor-pointer hover:border-white/20 transition-all group">
-                    <div className={cn("w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-xl mb-5", card.gradient, card.glow)}>
-                      <card.icon size={26} className="text-white" />
+                    className="bg-[#111827] border border-white/10 rounded-3xl p-6 cursor-pointer hover:border-white/20 transition-all">
+                    <div className={cn("w-12 h-12 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-xl mb-4", card.gradient, card.glow)}>
+                      <card.icon size={22} className="text-white" />
                     </div>
-                    <div className="text-4xl font-black text-white mb-1">{card.value}</div>
-                    <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">{card.label}</div>
+                    <div className="text-3xl font-black text-white mb-1">{card.value}</div>
+                    <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest">{card.label}</div>
                   </motion.div>
                 ))}
               </div>
 
+              {/* Source + Viewed/Unviewed row */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Lead Sources */}
+                <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                  <div className="px-7 py-5 border-b border-white/10 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                      <Globe size={16} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-sm">Lead Sources</h3>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Where leads are coming from</p>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-3">
+                    {Object.entries(sourceCount).length === 0 ? (
+                      <div className="text-center text-slate-600 font-bold py-6">No leads yet</div>
+                    ) : Object.entries(sourceCount).map(([src, count]: any) => {
+                      const cfg = SOURCE_LABELS[src] || SOURCE_LABELS.other;
+                      const pct = contacts.length > 0 ? Math.round((count / contacts.length) * 100) : 0;
+                      return (
+                        <div key={src} className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl">
+                          <span className={cn("w-3 h-3 rounded-full shrink-0", cfg.dot)} />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-bold text-sm">{cfg.label}</div>
+                            <div className="mt-1.5 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full bg-gradient-to-r", cfg.color)} style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                          <div className="text-2xl font-black text-white shrink-0">{count}</div>
+                          <div className="text-slate-500 text-[10px] font-bold">{pct}%</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Viewed / Unviewed */}
+                <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                  <div className="px-7 py-5 border-b border-white/10 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                      <Eye size={16} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-sm">Lead Engagement</h3>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Viewed vs Unread leads</p>
+                    </div>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 gap-4">
+                    <div className="p-6 rounded-2xl border bg-amber-500/10 border-amber-500/30 text-center">
+                      <div className="text-4xl font-black text-amber-300 mb-1">{unviewedLeads}</div>
+                      <div className="text-amber-400 text-[10px] font-black uppercase tracking-widest">● Unread</div>
+                      <div className="text-slate-500 text-[10px] mt-1">Not yet opened</div>
+                    </div>
+                    <div className="p-6 rounded-2xl border bg-emerald-500/10 border-emerald-500/30 text-center">
+                      <div className="text-4xl font-black text-emerald-300 mb-1">{viewedLeads}</div>
+                      <div className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">✓ Viewed</div>
+                      <div className="text-slate-500 text-[10px] mt-1">Admin reviewed</div>
+                    </div>
+                    <div className="col-span-2 p-4 bg-white/5 border border-white/10 rounded-2xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Read Rate</span>
+                        <span className="text-white font-black text-sm">{contacts.length > 0 ? Math.round((viewedLeads/contacts.length)*100) : 0}%</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all"
+                          style={{ width: `${contacts.length > 0 ? Math.round((viewedLeads/contacts.length)*100) : 0}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Breakdown - Leads + Bookings */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                  <div className="px-7 py-5 border-b border-white/10 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <Users size={16} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-sm">Leads Pipeline</h3>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Status breakdown</p>
+                    </div>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 gap-3">
+                    {(['pending','verified','called','completed'] as const).map(s => {
+                      const sc = STATUS_CONFIG[s];
+                      const count = lc[s];
+                      const pct = contacts.length > 0 ? Math.round((count / contacts.length) * 100) : 0;
+                      return (
+                        <div key={s} className={cn("p-4 rounded-2xl border", sc.color)}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={cn("w-2 h-2 rounded-full", sc.dot)} />
+                            <span className="text-[10px] font-black uppercase tracking-widest">{s}</span>
+                          </div>
+                          <div className="text-2xl font-black">{count}</div>
+                          <div className="text-[10px] mt-1 opacity-70 font-bold">{pct}% of total</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                  <div className="px-7 py-5 border-b border-white/10 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                      <Package size={16} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-sm">Bookings Pipeline</h3>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Status breakdown</p>
+                    </div>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 gap-3">
+                    {(['pending','verified','called','completed'] as const).map(s => {
+                      const sc = STATUS_CONFIG[s];
+                      const count = bc[s];
+                      const pct = bookings.length > 0 ? Math.round((count / bookings.length) * 100) : 0;
+                      return (
+                        <div key={s} className={cn("p-4 rounded-2xl border", sc.color)}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={cn("w-2 h-2 rounded-full", sc.dot)} />
+                            <span className="text-[10px] font-black uppercase tracking-widest">{s}</span>
+                          </div>
+                          <div className="text-2xl font-black">{count}</div>
+                          <div className="text-[10px] mt-1 opacity-70 font-bold">{pct}% of total</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
               {/* Recent Activity */}
               <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
-                <div className="p-7 border-b border-white/10 flex items-center justify-between">
+                <div className="px-7 py-5 border-b border-white/10 flex items-center justify-between">
                   <div>
-                    <h3 className="text-white font-bold text-lg">Recent Activity</h3>
+                    <h3 className="text-white font-bold">Recent Activity</h3>
                     <p className="text-slate-500 text-xs mt-0.5 uppercase tracking-widest font-bold">Latest leads & bookings</p>
                   </div>
-                  <Globe size={20} className="text-slate-600" />
+                  <Globe size={18} className="text-slate-600" />
                 </div>
                 <div className="divide-y divide-white/5">
                   {[...contacts.slice(0,3).map(c => ({...c, _type:'lead'})), ...bookings.slice(0,2).map(b => ({...b, _type:'booking'}))]
                     .sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                    .slice(0,5).map((item: any, i) => (
-                    <div key={i} className="flex items-center gap-5 px-7 py-5 hover:bg-white/5 transition-all group cursor-pointer" onClick={() => setSelectedDetail(item)}>
-                      <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0",
-                        item._type === 'lead' ? "from-blue-500 to-cyan-500" : "from-emerald-500 to-teal-500")}>
-                        {item._type === 'lead' ? <Users size={18} className="text-white" /> : <Package size={18} className="text-white" />}
+                    .slice(0,5).map((item: any, i) => {
+                      const sc = STATUS_CONFIG[(item.status || 'pending')] || STATUS_CONFIG.pending;
+                      const isUnread = item._type === 'lead' && !item.viewed;
+                      return (
+                      <div key={i} className={cn("flex items-center gap-5 px-7 py-5 hover:bg-white/5 transition-all cursor-pointer", isUnread && "bg-amber-500/5")} onClick={() => item._type === 'lead' ? markAsViewed(item, 'lead') : setSelectedDetail(item)}>
+                        <div className="relative">
+                          <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0",
+                            item._type === 'lead' ? "from-blue-500 to-cyan-500" : "from-emerald-500 to-teal-500")}>
+                            {item._type === 'lead' ? <Users size={18} className="text-white" /> : <Package size={18} className="text-white" />}
+                          </div>
+                          {isUnread && <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-[#111827]" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-bold text-sm truncate">{item.name || item.customer_name || "Unknown"}</span>
+                            {isUnread && <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">NEW</span>}
+                          </div>
+                          <div className="text-slate-500 text-xs font-bold uppercase tracking-wide mt-0.5">
+                            {item._type === 'lead' ? (item.source === 'exit_popup' ? '⚡ Urgent Popup' : '📬 Contact Form') : '📦 Booking'} · {item.phone || item.customer_phone || 'N/A'}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={cn("px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border hidden sm:inline-flex items-center gap-1.5", sc.color)}>
+                            <span className={cn("w-1.5 h-1.5 rounded-full", sc.dot)} />{item.status || 'pending'}
+                          </span>
+                          <div className="text-slate-600 text-xs font-bold">{new Date(item.created_at).toLocaleDateString()}</div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white font-bold text-sm truncate">{item.name || item.customer_name || "Unknown"}</div>
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wide mt-0.5">{item._type === 'lead' ? 'Lead' : 'Booking'} · {item.phone || item.customer_phone || 'N/A'}</div>
-                      </div>
-                      <div className="text-slate-600 text-xs font-bold">{new Date(item.created_at).toLocaleDateString()}</div>
-                    </div>
-                  ))}
+                    )})}
                   {contacts.length === 0 && bookings.length === 0 && (
                     <div className="p-12 text-center text-slate-600 font-bold">No data yet. Waiting for incoming leads...</div>
                   )}
                 </div>
               </div>
             </div>
-          )}
+          );
+          })()}
 
           {/* ── LEADS / BOOKINGS TABLE ────────────── */}
           {(activeTab === 'leads' || activeTab === 'bookings') && (
@@ -486,12 +751,29 @@ export default function AdminDashboard() {
                             >
                               <td className="px-6 py-5">
                                 <div className="flex items-center gap-4">
-                                  <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0 text-white font-black text-sm", ICON_GRADIENTS[idx % ICON_GRADIENTS.length])}>
-                                    {(item.name || item.customer_name || "?")[0].toUpperCase()}
+                                  <div className="relative">
+                                    <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0 text-white font-black text-sm", ICON_GRADIENTS[idx % ICON_GRADIENTS.length])}>
+                                      {(item.name || item.customer_name || "?")[0].toUpperCase()}
+                                    </div>
+                                    {activeTab === 'leads' && !item.viewed && (
+                                      <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-amber-400 rounded-full border-2 border-[#111827] flex items-center justify-center" />
+                                    )}
                                   </div>
                                   <div>
-                                    <div className="text-white font-bold text-sm">{item.name || item.customer_name || "Unknown"}</div>
-                                    <div className="text-slate-500 text-xs font-bold uppercase tracking-wide">{item.company || '—'}</div>
+                                    <div className={cn("font-bold text-sm", activeTab === 'leads' && !item.viewed ? "text-white" : "text-slate-300")}>
+                                      {item.name || item.customer_name || "Unknown"}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      {activeTab === 'leads' && item.source && (
+                                        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded border",
+                                          item.source === 'exit_popup'
+                                            ? "bg-rose-500/20 border-rose-500/30 text-rose-400"
+                                            : "bg-blue-500/20 border-blue-500/30 text-blue-400")}>
+                                          {item.source === 'exit_popup' ? '⚡ Popup' : '📬 Form'}
+                                        </span>
+                                      )}
+                                      {item.company && <span className="text-slate-500 text-xs font-bold uppercase tracking-wide">{item.company}</span>}
+                                    </div>
                                   </div>
                                 </div>
                               </td>
@@ -507,23 +789,27 @@ export default function AdminDashboard() {
                               <td className="px-6 py-5" onClick={e => e.stopPropagation()}>
                                 <select
                                   value={item.status || 'pending'}
-                                  onChange={(e) => updateStatus(item.id, activeTab === 'leads' ? 'contacts' : 'bookings', e.target.value)}
-                                  className={cn("text-[10px] font-bold uppercase px-3 py-1.5 rounded-xl border bg-transparent cursor-pointer tracking-wider transition-all", sc.color)}
+                                  onClick={e => e.stopPropagation()}
+                                  onChange={(e) => { e.stopPropagation(); updateStatus(item.id, activeTab === 'leads' ? 'contacts' : 'bookings', e.target.value); }}
+                                  className={cn("text-[10px] font-bold uppercase px-3 py-2 rounded-xl border cursor-pointer tracking-wider transition-all appearance-none min-w-[90px]", sc.color)}
+                                  style={{ background: 'transparent' }}
                                 >
-                                  {['pending','verified','called','completed'].map(s => <option key={s} value={s} className="bg-[#111827] text-white normal-case">{s}</option>)}
+                                  {['pending','verified','called','completed'].map(s => <option key={s} value={s} className="bg-[#111827] text-white normal-case font-bold">{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
                                 </select>
                               </td>
                               <td className="px-6 py-5 text-slate-500 text-xs font-bold">
                                 {new Date(item.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})}
                               </td>
                               <td className="px-6 py-5" onClick={e => e.stopPropagation()}>
-                                <div className="flex items-center justify-end gap-2">
-                                  <button onClick={() => setSelectedDetail(item)} className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-blue-500/20 text-slate-500 hover:text-blue-400 border border-white/10 hover:border-blue-500/30 rounded-xl transition-all">
-                                    <Eye size={15} />
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button onClick={(e) => { e.stopPropagation(); activeTab === 'leads' ? markAsViewed(item, 'lead') : setSelectedDetail(item); }} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-blue-500/20 text-slate-500 hover:text-blue-400 border border-white/10 hover:border-blue-500/30 rounded-xl transition-all" title="View Details">
+                                    <Eye size={14} />
                                   </button>
-                                  <button onClick={() => setDeleteId({ table: activeTab === 'leads' ? 'contacts' : 'bookings', id: item.id })}
-                                    className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-slate-500 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl transition-all">
-                                    <Trash2 size={15} />
+                                  <button onClick={(e) => { e.stopPropagation(); exportToPDF(item, activeTab === 'leads' ? 'lead' : 'booking'); }} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-emerald-500/20 text-slate-500 hover:text-emerald-400 border border-white/10 hover:border-emerald-500/30 rounded-xl transition-all" title="Export PDF">
+                                    <Download size={14} />
+                                  </button>
+                                  <button onClick={(e) => { e.stopPropagation(); setDeleteId({ table: activeTab === 'leads' ? 'contacts' : 'bookings', id: item.id }); }} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-slate-500 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl transition-all" title="Delete">
+                                    <Trash2 size={14} />
                                   </button>
                                 </div>
                               </td>
@@ -551,25 +837,34 @@ export default function AdminDashboard() {
                     <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">Manage section visibility</p>
                   </div>
                 </div>
-                <div className="p-6 space-y-3">
-                  {Object.entries(settings.section_visibility || {}).map(([key, val]: any) => (
-                    <div key={key} className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/8 group transition-all">
-                      <div>
-                        <div className="text-white font-bold text-sm capitalize">{key.replace('_', ' ')}</div>
-                        <div className="text-slate-500 text-xs mt-0.5 font-bold uppercase tracking-wider">{val ? 'Visible on site' : 'Hidden from site'}</div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Object.entries(settings.section_visibility || {}).map(([key, val]: any) => (
+                      <div key={key} className={cn(
+                        "flex flex-col gap-4 p-5 border rounded-2xl transition-all cursor-pointer",
+                        val ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/10 hover:border-white/20"
+                      )}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="text-white font-bold text-sm capitalize">{key.replace(/_/g, ' ')}</div>
+                            <div className={cn("text-xs mt-0.5 font-bold uppercase tracking-wider", val ? "text-emerald-400" : "text-slate-500")}>
+                              {val ? '● Visible' : '○ Hidden'}
+                            </div>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              const newVal = { ...settings.section_visibility, [key]: !val };
+                              await supabase.from('site_settings').update({ value: newVal }).eq('key', 'section_visibility');
+                              fetchData();
+                            }}
+                            className={cn("w-14 h-7 rounded-full transition-all relative flex items-center px-1 shrink-0", val ? "bg-gradient-to-r from-emerald-500 to-teal-500" : "bg-white/10")}
+                          >
+                            <div className={cn("w-5 h-5 bg-white rounded-full transition-all shadow-md", val ? "translate-x-7" : "translate-x-0")} />
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={async () => {
-                          const newVal = { ...settings.section_visibility, [key]: !val };
-                          await supabase.from('site_settings').update({ value: newVal }).eq('key', 'section_visibility');
-                          fetchData();
-                        }}
-                        className={cn("w-14 h-7 rounded-full transition-all relative flex items-center px-1", val ? "bg-gradient-to-r from-emerald-500 to-teal-500" : "bg-white/10")}
-                      >
-                        <div className={cn("w-5 h-5 bg-white rounded-full transition-all shadow-md", val ? "translate-x-7" : "translate-x-0")} />
-                      </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                   {Object.keys(settings.section_visibility || {}).length === 0 && (
                     <div className="p-12 text-center text-slate-600 font-bold">No settings found in database.</div>
                   )}
@@ -726,8 +1021,10 @@ export default function AdminDashboard() {
                         if (val === 'true') return 'Yes'; if (val === 'false') return 'No';
                         return String(val);
                       };
-                      const filteredData = typeof displayData === 'object' ? Object.entries(displayData).filter(([k]) =>
-                        !['name','email','phone','customer_name','customer_email','customer_phone','id','created_at'].includes(k.toLowerCase())
+                      const EMPTY_VALS = [null, undefined, '', 'null', 'undefined', 'N/A', 'n/a'];
+                      const filteredData = typeof displayData === 'object' ? Object.entries(displayData).filter(([k, v]) =>
+                        !['name','email','phone','customer_name','customer_email','customer_phone','id','created_at'].includes(k.toLowerCase()) &&
+                        !EMPTY_VALS.includes(v as any) && String(v).trim() !== ''
                       ) : [];
 
                       if (filteredData.length === 0) return (
@@ -765,12 +1062,20 @@ export default function AdminDashboard() {
               </div>
 
               {/* Modal Footer */}
-              <div className="border-t border-white/10 px-7 py-5 shrink-0 flex items-center justify-between bg-[#0D1117]">
+              <div className="border-t border-white/10 px-7 py-5 shrink-0 flex items-center justify-between gap-3 bg-[#0D1117]">
                 <span className="text-slate-600 text-xs font-bold uppercase tracking-widest hidden sm:block">Paddlog Admin · {activeTab === 'leads' ? 'Lead' : 'Booking'} Detail</span>
-                <button onClick={() => setSelectedDetail(null)}
-                  className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white rounded-2xl font-bold text-sm transition-all">
-                  <CloseIcon size={16} /> Close
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => exportToPDF(selectedDetail, activeTab === 'leads' ? 'lead' : 'booking')}
+                    className="flex items-center gap-2 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 rounded-2xl font-bold text-sm transition-all"
+                  >
+                    <Download size={15} /> Export PDF
+                  </button>
+                  <button onClick={() => setSelectedDetail(null)}
+                    className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white rounded-2xl font-bold text-sm transition-all">
+                    <CloseIcon size={15} /> Close
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

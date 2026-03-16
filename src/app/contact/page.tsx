@@ -30,7 +30,9 @@ export default function Contact() {
           email: formData.email,
           phone: formData.phone,
           service: formData.service,
-          message: formData.message
+          message: formData.message,
+          source: 'contact_form',
+          viewed: false
         }]);
 
       if (error) throw error;

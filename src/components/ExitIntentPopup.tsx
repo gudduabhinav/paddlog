@@ -29,7 +29,9 @@ export function ExitIntentPopup() {
           email: "",
           phone: phone,
           service: "Urgent Callback",
-          message: "User requested an urgent callback via Exit-Intent Popup."
+          message: "User requested an urgent callback via Exit-Intent Popup.",
+          source: 'exit_popup',
+          viewed: false
         }]);
 
       if (error) throw error;
