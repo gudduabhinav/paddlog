@@ -154,3 +154,12 @@ Creating turbopack project { dir: 'C:\\Abhinav\\peddlog', testMode: true }
  GET /sw.js 404 in 260ms (compile: 19ms, render: 240ms)
  GET /admin 200 in 2.6s (compile: 514ms, render: 2.1s)
  GET /sw.js 404 in 2.5s (compile: 749ms, render: 1781ms)
+ GET /compliance 404 in 352ms (compile: 25ms, render: 327ms)
+ GET /sw.js 404 in 5.4s (compile: 788ms, render: 4.6s)
+ GET /sw.js 404 in 245ms (compile: 27ms, render: 218ms)
+✓ Compiled in 1024ms
+ GET /sw.js 404 in 935ms (compile: 304ms, render: 630ms)
+ GET /sw.js 404 in 197ms (compile: 24ms, render: 173ms)
+ GET /sw.js 404 in 198ms (compile: 28ms, render: 170ms)
+ GET /sw.js 404 in 144ms (compile: 20ms, render: 124ms)
+ GET /sw.js 404 in 208ms (compile: 23ms, render: 186ms)
