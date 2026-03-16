@@ -703,26 +703,54 @@ export default function AdminDashboard() {
                                }
 
                                if (typeof displayData === 'object' && Object.keys(displayData).length > 0) {
+                                  // Organise data into a clean list instead of cards
+                                  const getLabel = (key: string) => {
+                                    const labels: any = {
+                                      serviceId: 'Service Type', isDG: 'Dangerous Goods', unNumber: 'UN Number',
+                                      packingGroup: 'Packing Group', origin: 'Origin Hub', destination: 'Target Hub',
+                                      cargoType: 'Cargo Classification', boxType: 'Packaging Type', isImport: 'Importation'
+                                    };
+                                    return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+                                  };
+
+                                  const formatValue = (val: any) => {
+                                    if (typeof val === 'boolean') return val ? 'YES' : 'NO';
+                                    if (val === 'true') return 'YES';
+                                    if (val === 'false') return 'NO';
+                                    return String(val);
+                                  };
+
+                                  const filteredData = Object.entries(displayData).filter(([k]) => 
+                                    !['name', 'email', 'phone', 'customer_name', 'customer_email', 'customer_phone', 'id', 'created_at'].includes(k.toLowerCase())
+                                  );
+
                                   return (
-                                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                                        {Object.entries(displayData).map(([k, v]: [string, any]) => {
-                                           const Icon = KEY_ICONS[k.toLowerCase()] || Activity;
-                                           return (
-                                              <motion.div 
-                                                 key={k} 
-                                                 className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col justify-between min-w-0"
-                                              >
-                                                 <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center mb-4 md:mb-6">
-                                                    <Icon size={18} />
-                                                 </div>
-                                                 <div className="min-w-0">
-                                                    <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1 truncate">{k.replace(/_/g, ' ')}</div>
-                                                    <div className="text-slate-900 font-black text-base md:text-xl leading-tight break-words tracking-tight">{String(v)}</div>
-                                                 </div>
-                                              </motion.div>
-                                           );
-                                        })}
-                                     </div>
+                                    <div className="space-y-1">
+                                      {filteredData.map(([k, v]: [string, any], index) => {
+                                        const Icon = KEY_ICONS[k.toLowerCase()] || Activity;
+                                        return (
+                                          <motion.div 
+                                            key={k}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className="flex flex-col sm:flex-row sm:items-center justify-between py-5 px-6 md:px-10 hover:bg-slate-50 border-b border-slate-100 group transition-all"
+                                          >
+                                            <div className="flex items-center gap-5">
+                                              <div className="w-10 h-10 bg-white border border-slate-100 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-[#E53935] group-hover:text-white transition-all shadow-sm">
+                                                <Icon size={16} />
+                                              </div>
+                                              <div>
+                                                <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{getLabel(k)}</div>
+                                              </div>
+                                            </div>
+                                            <div className="text-slate-900 font-black text-sm md:text-lg tracking-tight uppercase pl-14 sm:pl-0">
+                                              {formatValue(v)}
+                                            </div>
+                                          </motion.div>
+                                        );
+                                      })}
+                                    </div>
                                   );
                                }
 
