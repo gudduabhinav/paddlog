@@ -52,12 +52,12 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6",
         isScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg pt-1 pb-7 border-b border-slate-200"
-          : "bg-transparent pt-2 pb-10"
+          ? "bg-white/95 backdrop-blur-md shadow-md py-2 border-b border-slate-200"
+          : "bg-transparent py-3"
       )}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between relative -translate-y-4">
-        <Link href="/" className="relative h-24 md:h-28 w-auto flex items-center -ml-4 md:-ml-8">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link href="/" className="relative h-16 md:h-20 w-auto flex items-center">
           <img
             src="/logo.png"
             alt="Paddlog Logo"
