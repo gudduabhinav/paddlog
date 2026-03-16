@@ -83,7 +83,7 @@ export function MapSection() {
             ))}
           </div>
           
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-3 sm:gap-6">
             <StatSmall value="50+" label="Countries" />
             <StatSmall value="200+" label="Partners" />
             <StatSmall value="24/7" label="Uplink" />
@@ -134,9 +134,9 @@ function FlyingPlane({ src, from, to, duration, delay, size, flip }: any) {
 
 function StatSmall({ value, label }: any) {
   return (
-    <div className="text-center p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:border-[#E53935]/50 transition-all">
-      <div className="text-3xl font-bold text-white mb-1 uppercase tracking-tighter">{value}</div>
-      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{label}</div>
+    <div className="min-w-0 text-center p-3 sm:p-8 bg-white/5 border border-white/10 rounded-[2rem] hover:border-[#E53935]/50 transition-all">
+      <div className="text-2xl sm:text-3xl font-bold text-white mb-1 uppercase tracking-tighter leading-none">{value}</div>
+      <div className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] sm:tracking-[0.2em] leading-tight break-words">{label}</div>
     </div>
   );
 }

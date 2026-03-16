@@ -57,7 +57,7 @@ export function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="relative h-16 md:h-20 w-auto flex items-center">
+        <Link href="/" className="relative h-24 md:h-32 w-auto flex items-center">
           <img
             src="/logo.png"
             alt="Paddlog Logo"
