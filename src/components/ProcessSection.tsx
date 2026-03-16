@@ -8,7 +8,7 @@ const steps = [
   { title: "Inquiry",       desc: "Share your cargo details with our DG experts.",      icon: Search,      gradient: "from-blue-500 to-cyan-500"    },
   { title: "Packaging",     desc: "UN certified packing for maximum safety.",            icon: PackageOpen, gradient: "from-red-500 to-rose-600"     },
   { title: "Documentation", desc: "Complete DGD and regulatory paperwork.",               icon: FileCheck,   gradient: "from-slate-600 to-slate-800"  },
-  { title: "Shipping",      desc: "Global air & sea freight with real-time tracking.",    icon: Truck,       gradient: "from-indigo-500 to-blue-600"  },
+  { title: "Shipping",      desc: "Global air & sea freight with proactive status updates.", icon: Truck,    gradient: "from-indigo-500 to-blue-600"  },
   { title: "Delivery",      desc: "Safe, on-time delivery to any destination.",           icon: MapPinCheck, gradient: "from-emerald-500 to-teal-500" },
 ];
 

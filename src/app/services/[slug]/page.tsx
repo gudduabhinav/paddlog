@@ -58,7 +58,7 @@ const serviceData: Record<string, any> = {
       "Airfreight Export & Import",
       "Sea Freight (FCL/LCL) Solutions",
       "Hazardous & General Cargo Handling",
-      "Real-time Tracking & Monitoring",
+      "Status Updates & Monitoring",
       "Multi-modal Transportation",
       "24/7 Global Operational Support"
     ],
@@ -232,7 +232,7 @@ export default function ServicePage() {
                 <div className="text-center p-6 bg-slate-50 rounded-3xl">
                   <Truck className="mx-auto mb-4 text-primary" size={32} />
                   <div className="text-2xl font-bold">24/7</div>
-                  <div className="text-sm text-slate-500 font-bold uppercase">Tracking</div>
+                  <div className="text-sm text-slate-500 font-bold uppercase">Monitoring</div>
                 </div>
               </div>
             </div>

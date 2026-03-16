@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Phone, Mail, MapPin, MessageCircle, CheckCircle2, User, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
-import { sendWhatsAppNotification } from "@/lib/whatsapp";
 
 export default function Contact() {
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -36,8 +35,7 @@ export default function Contact() {
 
       if (error) throw error;
 
-      // Direct call to Edge Function to ensure email invitation
-      await fetch('https://wawnxegvuuveqaxtbwpi.supabase.co/functions/v1/send-contact-email', {
+      const emailRes = await fetch('https://wawnxegvuuveqaxtbwpi.supabase.co/functions/v1/send-contact-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,9 +43,8 @@ export default function Contact() {
         },
         body: JSON.stringify({ record: formData })
       });
+      console.log("Email Service Response:", await emailRes.json());
 
-      // 3. Send WhatsApp Notification to Client
-      await sendWhatsAppNotification(formData.phone, formData.name, "contact_form_submission");
 
       setFormStatus('success');
       setFormData({ name: "", email: "", phone: "", service: "General Inquiry", message: "" });
@@ -72,7 +69,7 @@ export default function Contact() {
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-7xl font-black mb-6"
+              className="text-5xl md:text-7xl font-bold mb-6"
             >
               Get In <span className="text-primary italic">Touch</span>
             </motion.h1>
@@ -119,7 +116,7 @@ export default function Contact() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <DarkInput label="Phone Number" placeholder="+91 00000 00000" value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} />
                       <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Service Required</label>
+                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Service Required</label>
                         <select 
                           className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 text-white hover:border-primary/50 transition-colors outline-none"
                           value={formData.service}
@@ -134,7 +131,7 @@ export default function Contact() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Your Detailed Message</label>
+                       <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Your Detailed Message</label>
                        <textarea 
                          required
                          className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 min-h-[160px] text-white hover:border-primary/50 transition-colors outline-none focus:ring-1 focus:ring-primary/50"
@@ -147,7 +144,7 @@ export default function Contact() {
                     <button 
                       type="submit" 
                       disabled={formStatus === 'loading'}
-                      className="w-full red-gradient text-white py-4 rounded-2xl font-black text-lg shadow-premium hover:shadow-red-glow transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                      className="w-full red-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-premium hover:shadow-red-glow transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                     >
                       <span>{formStatus === 'loading' ? 'Sending...' : 'Transmit Inquiry'}</span>
                       <Send size={20} />
@@ -183,8 +180,8 @@ export default function Contact() {
                             <MapPin size={20} />
                          </div>
                          <div>
-                            <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">{office.tagline}</div>
-                            <h4 className="text-lg font-black">{office.city}</h4>
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{office.tagline}</div>
+                            <h4 className="text-lg font-bold">{office.city}</h4>
                          </div>
                       </div>
                       <p className="text-sm text-slate-500 leading-relaxed pl-14">{office.address}</p>
@@ -204,7 +201,7 @@ export default function Contact() {
 function DarkInput({ label, placeholder, type = "text", value, onChange, required }: any) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">{label}</label>
+      <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">{label}</label>
       <input 
         type={type}
         required={required}
@@ -224,7 +221,7 @@ function ContactDetail({ icon: Icon, label, value, href }: any) {
           <Icon size={22} className="text-slate-400 group-hover:text-primary transition-colors" />
        </div>
        <div>
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</div>
           <div className="text-lg font-bold group-hover:text-primary transition-colors">{value}</div>
        </div>
     </a>

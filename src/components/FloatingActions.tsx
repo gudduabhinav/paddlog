@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, ArrowUp } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function FloatingActions() {
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,6 +21,8 @@ export function FloatingActions() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (isAdmin) return null;
 
   return (
     <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-4">

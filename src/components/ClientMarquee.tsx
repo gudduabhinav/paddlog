@@ -28,7 +28,7 @@ export function ClientMarquee() {
           {Array(4).fill(clients).flat().map((client, i) => (
             <motion.span
               key={i}
-              className="text-3xl font-black text-slate-800/10 hover:text-primary/30 transition-colors cursor-default select-none"
+              className="text-3xl font-bold text-slate-800/10 hover:text-primary/30 transition-colors cursor-default select-none"
               whileHover={{ scale: 1.1 }}
             >
               {client}

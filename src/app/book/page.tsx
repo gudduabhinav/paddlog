@@ -6,13 +6,12 @@ import { Footer } from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, FileText, Plane, Ship, ShieldCheck, Warehouse,
-  ArrowRight, ArrowLeft, CheckCircle2, Truck, Check, AlertCircle,
+  ArrowRight, CheckCircle2, Check, AlertCircle,
   User, Mail, Phone, Building2, MapPin, Box, Weight, Search, Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import jsPDF from "jspdf";
-import { sendWhatsAppNotification } from "@/lib/whatsapp";
 
 const services = [
   { 
@@ -82,7 +81,6 @@ const UN_HUB_DATA = [
 export default function BookServicePage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [lastBookingId, setLastBookingId] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<any>({
     serviceId: "", name: "", company: "", email: "",
@@ -90,7 +88,8 @@ export default function BookServicePage() {
     quantity: "", weight: "", notes: "",
     boxType: "", unRating: "", unNumber: "", packingGroup: "",
     origin: "", destination: "", containerType: "", entryPoint: "",
-    commodityType: "", isImport: "true", duration: "", storageType: "", isDG: "true"
+    commodityType: "", isImport: "true", duration: "", storageType: "", isDG: "true",
+    cargoType: ""
   });
 
   const [unSearch, setUnSearch] = useState("");
@@ -102,15 +101,6 @@ export default function BookServicePage() {
   const updateForm = (field: string, value: string) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
-  };
-
-  const generateTrackingId = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let result = 'PL-';
-    for (let i = 0; i < 5; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
   };
 
   const validate = () => {
@@ -131,16 +121,14 @@ export default function BookServicePage() {
     return Object.keys(errs).length === 0;
   };
 
-  const generatePDF = (trackingId: string) => {
+  const generatePDF = () => {
     const doc = new jsPDF();
-    const primaryColor = [225, 29, 72]; // #e11d48
+    const primaryColor = [225, 29, 72];
     const darkColor = [10, 15, 30];
 
-    // Header Color Bar
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.rect(0, 0, 210, 40, 'F');
 
-    // Logo Text (since image might need CORS, let's use text fallback for now or dataURI)
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(30);
     doc.setFont("helvetica", "bold");
@@ -150,16 +138,10 @@ export default function BookServicePage() {
     doc.setFont("helvetica", "normal");
     doc.text("DANGEROUS GOODS LOGISTICS SPECIALIST", 20, 32);
 
-    // Booking ID / Tracking ID section
     doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
     doc.setFontSize(12);
-    doc.text("BOOKING CONFIRMATION & TRACKING ID", 20, 55);
-    
-    doc.setFontSize(24);
-    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.text(trackingId, 20, 70);
+    doc.text("BOOKING CONFIRMATION", 20, 55);
 
-    // Customer Details
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(10);
     doc.text("CUSTOMER DETAILS", 20, 90);
@@ -173,7 +155,6 @@ export default function BookServicePage() {
     doc.text(`Phone: ${formData.phone}`, 20, 118);
     if(formData.company) doc.text(`Company: ${formData.company}`, 20, 126);
 
-    // Service Details
     const serviceTitle = services.find(s => s.id === formData.serviceId)?.title || "General Logistics";
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(10);
@@ -187,25 +168,21 @@ export default function BookServicePage() {
     if(formData.unNumber) doc.text(`UN Number: ${formData.unNumber}`, 20, 181);
     if(formData.quantity) doc.text(`Quantity: ${formData.quantity}`, 20, 189);
 
-    // Footer Info
     doc.setFillColor(248, 250, 252);
     doc.rect(0, 260, 210, 37, 'F');
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(9);
-    doc.text("Visit www.paddlog.com/track and enter your Tracking ID for real-time updates.", 105, 275, { align: "center" });
+    doc.text("Our team will contact you shortly with next steps.", 105, 275, { align: "center" });
     doc.text("This is an electronically generated document. No signature required.", 105, 282, { align: "center" });
 
-    doc.save(`Paddlog_Booking_${trackingId}.pdf`);
+    doc.save(`Paddlog_Booking.pdf`);
   };
 
   const handleSubmit = async () => {
     if (!validate()) return;
     setLoading(true);
 
-    const trackingId = generateTrackingId();
-
     try {
-      // 1. Create the booking record
       const { error: bookingErr } = await supabase.from('bookings').insert([{
         customer_name: formData.name,
         customer_email: formData.email,
@@ -217,44 +194,22 @@ export default function BookServicePage() {
 
       if (bookingErr) throw bookingErr;
 
-      // 2. Create the shipment record for tracking
-      const { error: shipmentErr } = await supabase.from('shipments').insert([{
-        id: trackingId,
-        status: "Booking Confirmed",
-        current_location: formData.origin || "Pickup Point",
-        origin: formData.origin || "Not Specified",
-        destination: formData.destination || "Not Specified",
-        last_update: "Just Now",
-        steps: [
-          { status: "Booking Confirmed", date: "Today", completed: true, active: true },
-          { status: "Package Pickup", date: "Scheduled", completed: false },
-          { status: "DG Classification", date: "Pending", completed: false },
-          { status: "In Transit", date: "Pending", completed: false }
-        ]
-      }]);
+      const emailRes = await fetch('https://wawnxegvuuveqaxtbwpi.supabase.co/functions/v1/send-contact-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indhd254ZWd2dXV2ZXFheHRid3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNDg5MjksImV4cCI6MjA4ODgyNDkyOX0.eYBK0zMHap0g1N0CHkfUDrU0jzolFwmbDzzECmV_KK0'
+        },
+        body: JSON.stringify({ record: formData })
+      });
+      console.log("Email Service Response:", await emailRes.json());
 
-      if (shipmentErr) throw shipmentErr;
 
-      // 3. Send WhatsApp Notification to Client (Sub-block to prevent main flow failure)
-      try {
-        console.log("Attempting WhatsApp notification...");
-        const waResult = await sendWhatsAppNotification(formData.phone, formData.name, "booking_confirmation");
-        console.log("WhatsApp Result:", waResult);
-      } catch (waErr) {
-        console.error("WhatsApp Step Error:", waErr);
-      }
-
-      setLastBookingId(trackingId);
       setStep(4);
-      
-      // Auto-download PDF
-      generatePDF(trackingId);
+      generatePDF();
 
     } catch (err: any) {
-      console.error("Booking Error Detail:", err);
-      if (err.message) console.error("Error Message:", err.message);
-      if (err.details) console.error("Error Details:", err.details);
-      if (err.hint) console.error("Error Hint:", err.hint);
+      console.error("Booking Error:", err);
       alert("Failed to confirm booking. Try again.");
     } finally {
       setLoading(false);
@@ -280,7 +235,7 @@ export default function BookServicePage() {
       <div className="relative pt-28 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0f1e] via-[#12172b] to-[#0a0f1e]" />
         <div className="container mx-auto px-6 relative z-10 text-center">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-6xl font-black text-white mb-4">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl md:text-6xl font-bold text-white mb-4">
             Smart <span className="text-primary italic">Booking</span>
           </motion.h1>
           <p className="text-slate-400 max-w-xl mx-auto">Our system identifies the requirements for your specific DG service automatically.</p>
@@ -296,7 +251,7 @@ export default function BookServicePage() {
                 {step === 1 && <Step1Service key="1" selectedId={formData.serviceId} onSelect={(id: string) => updateForm("serviceId", id)} />}
                 {step === 2 && <Step2Dynamic key="2" formData={formData} updateForm={updateForm} errors={errors} service={selectedService} />}
                 {step === 3 && <Step3Review key="3" formData={formData} service={selectedService} />}
-                {step === 4 && <Step4Done key="4" trackingId={lastBookingId} downloadPdf={() => generatePDF(lastBookingId)} />}
+                {step === 4 && <Step4Done key="4" downloadPdf={generatePDF} />}
               </AnimatePresence>
 
               {step < 4 && (
@@ -372,7 +327,6 @@ function Step2Dynamic({ formData, updateForm, errors, service }: any) {
         {service?.fields.includes("unNumber") && <DarkInput icon={AlertCircle} placeholder="UN Number (e.g. UN 1263)" value={formData.unNumber} onChange={(v: string) => updateForm("unNumber", v)} error={errors.unNumber} />}
         {service?.fields.includes("quantity") && <DarkInput icon={Package} placeholder="Quantity" value={formData.quantity} onChange={(v: string) => updateForm("quantity", v)} />}
         {service?.fields.includes("weight") && <DarkInput icon={Weight} placeholder="Est. Weight (kg)" value={formData.weight} onChange={(v: string) => updateForm("weight", v)} />}
-        
         {service?.fields.includes("boxType") && <DarkInput icon={Box} placeholder="Box/Packaging Type" value={formData.boxType} onChange={(v: string) => updateForm("boxType", v)} />}
         {service?.fields.includes("unRating") && <DarkInput icon={ShieldCheck} placeholder="UN Rating" value={formData.unRating} onChange={(v: string) => updateForm("unRating", v)} />}
         {service?.fields.includes("cargoType") && <DarkInput icon={Package} placeholder="Cargo Type" value={formData.cargoType} onChange={(v: string) => updateForm("cargoType", v)} />}
@@ -403,7 +357,7 @@ function Step3Review({ formData, service }: any) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className={cn("p-6 rounded-2xl bg-gradient-to-r text-white", service?.gradient)}>
-        <h3 className="text-2xl font-black">{service?.title}</h3>
+        <h3 className="text-2xl font-bold">{service?.title}</h3>
         <p className="opacity-80">Booking Summary</p>
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -414,28 +368,20 @@ function Step3Review({ formData, service }: any) {
            <ReviewItem key={field} label={getFieldLabel(field)} value={formData[field] || "—"} />
         ))}
       </div>
-
     </motion.div>
   );
 }
 
-function Step4Done({ trackingId, downloadPdf }: any) {
+function Step4Done({ downloadPdf }: any) {
   return (
     <div className="text-center py-10">
       <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
       <h2 className="text-3xl font-bold text-white mb-2">Booking Confirmed!</h2>
-      <div className="mt-4 p-4 bg-white/5 border border-white/10 rounded-2xl inline-block">
-        <p className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-1">Your Tracking ID</p>
-        <p className="text-3xl font-black text-primary">{trackingId}</p>
-      </div>
-      <p className="text-slate-400 mt-6 max-w-sm mx-auto">Please download your booking summary. You can use this ID to track your shipment in real-time.</p>
+      <p className="text-slate-400 mt-6 max-w-sm mx-auto">Please download your booking summary. Our team will contact you shortly.</p>
       
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
         <button onClick={downloadPdf} className="bg-white text-black px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-transform w-full sm:w-auto justify-center">
             <Download size={18} /> Download PDF Quote
-        </button>
-        <button onClick={() => window.location.href = '/track'} className="border border-white/20 text-white px-8 py-3 rounded-xl hover:bg-white/10 w-full sm:w-auto">
-            Track Now
         </button>
       </div>
     </div>

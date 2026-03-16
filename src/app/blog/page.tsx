@@ -98,7 +98,7 @@ export default function BlogPage() {
             className="text-center max-w-3xl mx-auto"
           >
             <span className="text-primary font-bold uppercase tracking-[0.3em] text-xs mb-4 block">Paddlog Insights</span>
-            <h1 className="text-5xl md:text-7xl font-black mb-6">The DG <span className="text-primary italic">Playbook</span></h1>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">The DG <span className="text-primary italic">Playbook</span></h1>
             <p className="text-slate-400 text-lg md:text-xl leading-relaxed">
               Professional guidance, regulatory updates, and expert tips on hazardous material logistics.
             </p>
@@ -154,7 +154,7 @@ export default function BlogPage() {
                        <span>{post.date}</span>
                     </div>
                     
-                    <h3 className="text-2xl font-black text-white mb-4 leading-tight group-hover:text-primary transition-colors">
+                    <h3 className="text-2xl font-bold text-white mb-4 leading-tight group-hover:text-primary transition-colors">
                       {post.title}
                     </h3>
                     
@@ -201,11 +201,11 @@ export default function BlogPage() {
                  Close [x]
                </button>
 
-               <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-8 bg-gradient-to-r text-white", selectedPost.gradient)}>
+               <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-8 bg-gradient-to-r text-white", selectedPost.gradient)}>
                  {selectedPost.category}
                </div>
 
-               <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight">{selectedPost.title}</h2>
+               <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">{selectedPost.title}</h2>
                
                <div className="flex items-center gap-6 mb-10 text-slate-500 text-sm">
                  <div className="flex items-center gap-2">

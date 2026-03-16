@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
+import { FloatingActions, ScrollProgress } from "@/components/FloatingActions";
+import { LayoutClientWrapper } from "@/components/LayoutClientWrapper";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -19,8 +21,6 @@ export const metadata: Metadata = {
   description: "Dangerous Goods logistics, packaging, freight forwarding, customs clearance, and warehousing services.",
 };
 
-import { FloatingActions, ScrollProgress } from "@/components/FloatingActions";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +34,7 @@ export default function RootLayout({
         <ScrollProgress />
         {children}
         <FloatingActions />
+        <LayoutClientWrapper />
       </body>
     </html>
   );

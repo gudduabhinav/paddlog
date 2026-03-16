@@ -41,7 +41,7 @@ export default function NotFound() {
             <Plane size={120} strokeWidth={1} />
           </motion.div>
 
-          <h1 className="text-8xl md:text-9xl font-black text-white mb-4 tracking-tighter">
+          <h1 className="text-8xl md:text-9xl font-bold text-white mb-4 tracking-tighter">
             4<span className="text-primary">0</span>4
           </h1>
           

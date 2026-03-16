@@ -1,0 +1,31 @@
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ./src/app/admin/page.tsx:573:31
+Parsing ecmascript source code failed
+[0m [90m 571 |[39m                              [33mRegistered[39m[33m:[39m {[36mnew[39m [33mDate[39m(selectedDetail[33m.[39mcreated_at)[33m.[39mtoLocaleString()}
+ [90m 572 |[39m                           [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 573 |[39m                        section[33m>[39m
+ [90m     |[39m                               [31m[1m^[22m[39m
+ [90m 574 |[39m                     [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 575 |[39m
+ [90m 576 |[39m                     {[90m/* Right Side: Technical Specs & Details */[39m}[0m
+
+Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+Import traces:
+  Client Component Browser:
+    ./src/app/admin/page.tsx [Client Component Browser]
+    ./src/app/admin/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/admin/page.tsx [Client Component SSR]
+    ./src/app/admin/page.tsx [Server Component]
+
+
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.

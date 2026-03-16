@@ -12,15 +12,15 @@ export function Footer() {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Company Info */}
-          <div className="space-y-6">
+          <div className="space-y-1">
             <Link href="/" className="inline-block transition-all duration-300 hover:scale-110 active:scale-95">
               <img
                 src="/logo.png"
                 alt="Paddlog Logo"
-                className="h-[120px] md:h-[180px] w-auto object-contain drop-shadow-[0_0_25px_rgba(255,255,255,0.95)]"
+                className="h-[100px] md:h-[130px] w-auto object-contain drop-shadow-[0_0_25px_rgba(255,255,255,0.95)]"
               />
             </Link>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-400 leading-relaxed -mt-2">
               Hyderabad born, globally focused. Experts in specialized dangerous goods logistics,
               ensuring safe, compliant, and efficient transport of high-stakes cargo worldwide.
             </p>
@@ -50,7 +50,6 @@ export function Footer() {
             <ul className="space-y-4">
               <FooterLink href="/about" text="About Us" />
               <FooterLink href="/contact" text="Contact Experts" />
-              <FooterLink href="/track" text="Track Shipment" />
               <FooterLink href="/blog" text="Blog" />
               <FooterLink href="#" text="Privacy Policy" />
               <FooterLink href="#" text="Terms of Service" />
