@@ -1,18 +1,24 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { 
+import {
   LayoutDashboard, Users, Package, Bell,
-  Trash2, CheckCircle, ExternalLink, LogOut, 
-  Settings2, Eye, ShieldCheck, Zap, Activity, Menu,
+  Trash2, LogOut, Settings2, Eye, ShieldCheck, Zap, Activity, Menu,
   RefreshCcw, Database, Volume2, VolumeX, Download, X as CloseIcon, AlertTriangle, MessageSquare, Phone,
-  MapPin, Navigation, Clock, CreditCard, Box, Calendar
+  MapPin, Navigation, Clock, CreditCard, Box, Calendar, TrendingUp, Globe, CheckCircle2
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 const NOTIFICATION_SOUND = "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3";
+
+const STATUS_CONFIG: any = {
+  pending:   { label: "Pending",   color: "bg-amber-500/20 text-amber-300 border-amber-500/30",   dot: "bg-amber-400" },
+  verified:  { label: "Verified",  color: "bg-blue-500/20 text-blue-300 border-blue-500/30",      dot: "bg-blue-400" },
+  called:    { label: "Called",    color: "bg-purple-500/20 text-purple-300 border-purple-500/30", dot: "bg-purple-400" },
+  completed: { label: "Completed", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", dot: "bg-emerald-400" },
+};
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,49 +35,40 @@ export default function AdminDashboard() {
   const [newBookingsAlert, setNewBookingsAlert] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [deleteId, setDeleteId] = useState<{table: string, id: string} | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Responsive Check Utility
+  const KEY_ICONS: any = {
+    phone: Phone, email: MessageSquare, weight: TrendingUp,
+    origin: MapPin, pickup: MapPin, destination: Navigation,
+    cargo: Package, service: Zap, status: ShieldCheck,
+    notes: MessageSquare, boxtype: Box, company: Users,
+    duration: Clock, quantity: Package, material: Box,
+    date: Calendar, payment: CreditCard
+  };
+
+  const ICON_GRADIENTS = [
+    "from-violet-500 to-purple-600", "from-blue-500 to-cyan-400",
+    "from-emerald-500 to-teal-400", "from-orange-500 to-amber-400",
+    "from-pink-500 to-rose-400", "from-indigo-500 to-blue-400",
+    "from-teal-500 to-green-400", "from-red-500 to-orange-400",
+  ];
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      if (!mobile) setIsSidebarOpen(false); // Reset sidebar state on desktop
+      if (!mobile) setIsSidebarOpen(false);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const KEY_ICONS: any = {
-    phone: Phone,
-    email: MessageSquare,
-    weight: Activity,
-    origin: MapPin,
-    pickup: MapPin,
-    destination: Navigation,
-    cargo: Package,
-    service: Zap,
-    status: ShieldCheck,
-    notes: MessageSquare,
-    boxtype: Box,
-    company: Users,
-    duration: Clock,
-    quantity: Package,
-    material: Box,
-    date: Calendar,
-    payment: CreditCard
-  };
-
-  const [deleteId, setDeleteId] = useState<{table: string, id: string} | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Persistence check
   useEffect(() => {
     const auth = localStorage.getItem("paddlog_admin_auth");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-    }
+    if (auth === "true") setIsAuthenticated(true);
   }, []);
 
   const handleAuth = (e: React.FormEvent) => {
@@ -79,16 +76,10 @@ export default function AdminDashboard() {
     if (password === "Paddlog@2024") {
       setIsAuthenticated(true);
       localStorage.setItem("paddlog_admin_auth", "true");
-      // Unlock audio context on user interaction
       if (audioRef.current) {
-        audioRef.current.play().then(() => {
-          audioRef.current!.pause();
-          audioRef.current!.currentTime = 0;
-        }).catch(e => console.log("Audio unlock failed", e));
+        audioRef.current.play().then(() => { audioRef.current!.pause(); audioRef.current!.currentTime = 0; }).catch(() => {});
       }
-      if ("Notification" in window) {
-        Notification.requestPermission();
-      }
+      if ("Notification" in window) Notification.requestPermission();
     } else {
       alert("Invalid Access Key");
     }
@@ -107,14 +98,9 @@ export default function AdminDashboard() {
         supabase.from('bookings').select('*').order('created_at', { ascending: false }),
         supabase.from('site_settings').select('*')
       ]);
-
       setContacts(leads || []);
       setBookings(shipments || []);
-      
-      const settingsMap = siteSettings?.reduce((acc: any, curr: any) => {
-        acc[curr.key] = curr.value;
-        return acc;
-      }, {});
+      const settingsMap = siteSettings?.reduce((acc: any, curr: any) => { acc[curr.key] = curr.value; return acc; }, {});
       setSettings(settingsMap || {});
     } catch (err) {
       console.error("Sync Failure:", err);
@@ -126,43 +112,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchData();
-      
-        const channel = supabase
-        .channel('paddlog_admin_v5')
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'contacts' },
-          () => {
-            handleNewEntry('leads');
-          }
-        )
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'bookings' },
-          () => {
-            handleNewEntry('shipments');
-          }
-        )
+      const channel = supabase.channel('paddlog_admin_v6')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contacts' }, () => handleNewEntry('leads'))
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bookings' }, () => handleNewEntry('shipments'))
         .subscribe();
-
       return () => { supabase.removeChannel(channel); };
     }
   }, [isAuthenticated]);
 
   const handleNewEntry = (type: 'leads' | 'shipments') => {
-    if (soundEnabled && audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(e => console.warn("Audio blocked", e));
-    }
-    
-    if (type === 'leads') {
-      setNewLeadsAlert(true);
-      setTimeout(() => setNewLeadsAlert(false), 8000);
-    } else {
-      setNewBookingsAlert(true);
-      setTimeout(() => setNewBookingsAlert(false), 8000);
-    }
-
+    if (soundEnabled && audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(() => {}); }
+    if (type === 'leads') { setNewLeadsAlert(true); setTimeout(() => setNewLeadsAlert(false), 8000); }
+    else { setNewBookingsAlert(true); setTimeout(() => setNewBookingsAlert(false), 8000); }
     setIsAlertActive(true);
     setTimeout(() => setIsAlertActive(false), 5000);
     fetchData();
@@ -171,12 +132,7 @@ export default function AdminDashboard() {
   const updateStatus = async (id: string, table: string, newStatus: string) => {
     try {
       const { error } = await supabase.from(table).update({ status: newStatus }).eq('id', id);
-      if (error) {
-        console.error(`Supabase Update Error [${table}]:`, error);
-        throw error;
-      }
-      
-      // Update local state
+      if (error) throw error;
       if (table === 'contacts') {
         setContacts(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
         if (selectedDetail?.id === id) setSelectedDetail((prev: any) => ({ ...prev, status: newStatus }));
@@ -185,653 +141,641 @@ export default function AdminDashboard() {
         if (selectedDetail?.id === id) setSelectedDetail((prev: any) => ({ ...prev, status: newStatus }));
       }
     } catch (err: any) {
-      console.error("Critical Status Failure:", err.message || err);
       alert(`Status update failed: ${err.message || "Please ensure 'status' column exists in Supabase"}`);
     }
   };
 
   const confirmDelete = async () => {
     if (!deleteId || isDeleting) return;
-    
     setIsDeleting(true);
     try {
       const { error } = await supabase.from(deleteId.table).delete().eq('id', deleteId.id);
       if (error) throw error;
-      
       if (deleteId.table === 'contacts') setContacts(prev => prev.filter(c => c.id !== deleteId.id));
       else setBookings(prev => prev.filter(b => b.id !== deleteId.id));
-      
-      setDeleteId(null);
-    } catch (err) {
-      alert("Database error: Could not delete.");
-      console.error(err);
-    } finally {
-      setIsDeleting(false);
-      setDeleteId(null);
-    }
+    } catch (err) { alert("Database error: Could not delete."); }
+    finally { setIsDeleting(false); setDeleteId(null); }
   };
 
   const exportToCSV = (tableData: any[], fileName: string) => {
     if (tableData.length === 0) return;
     const headers = Object.keys(tableData[0]).join(",");
-    const rows = tableData.map(row => 
-      Object.values(row).map(value => typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value).join(",")
-    ).join("\n");
+    const rows = tableData.map(row => Object.values(row).map(value => typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value).join(",")).join("\n");
     const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows;
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", encodeURI(csvContent));
     link.setAttribute("download", `${fileName}_${new Date().toLocaleDateString()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
   };
 
+  // ─── LOGIN SCREEN ────────────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-roboto">
-        <div className="bg-white border border-slate-200 p-10 rounded-[2.5rem] w-full max-w-sm shadow-2xl">
-          <div className="w-24 h-24 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
-             <img src="/logo.png" className="w-16 h-16 object-contain" alt="Logo" />
+      <main className="min-h-screen bg-[#0A0C14] flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDBNIDAgMjAgTCA0MCAyMCBNIDIwIDAgTCAyMCA0MCBNIDAgMzAgTCA0MCAzMCBNIDMwIDAgTCAzMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWExZjJlIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40 pointer-events-none" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative w-full max-w-sm"
+        >
+          <div className="bg-[#111827]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl">
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center shadow-lg shadow-red-900/40 mb-4">
+                <img src="/logo.png" className="w-12 h-12 object-contain" alt="Logo" />
+              </div>
+              <h1 className="text-white text-2xl font-bold">Paddlog Command</h1>
+              <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">Admin Access Portal</p>
+            </div>
+            <form onSubmit={handleAuth} className="space-y-4">
+              <div className="relative">
+                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                <input
+                  type="password"
+                  placeholder="Enter access key..."
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-5 outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/20 transition-all text-white placeholder-slate-600 font-medium tracking-widest"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <button className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white py-4 rounded-2xl font-bold tracking-widest text-sm transition-all shadow-lg shadow-red-900/40 active:scale-95">
+                AUTHENTICATE →
+              </button>
+            </form>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 text-center mb-2">Paddlog Ops</h1>
-          <p className="text-center text-slate-500 text-xs font-bold uppercase tracking-widest mb-10">Administrative Control</p>
-          <form onSubmit={handleAuth} className="space-y-4">
-            <input 
-              type="password" 
-              placeholder="System Access Key"
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 outline-none focus:border-[#E53935] focus:ring-4 focus:ring-[#E53935]/5 transition-all text-center font-bold tracking-widest"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoFocus
-            />
-            <button className="w-full bg-[#E53935] hover:bg-[#B71C1C] text-white py-4 rounded-2xl font-bold tracking-widest text-sm transition-all shadow-lg active:scale-95">
-              AUTHENTICATE
-            </button>
-          </form>
-        </div>
+          <p className="text-center text-slate-600 text-xs mt-6 uppercase tracking-widest">Paddlog Operations Center v2.0</p>
+        </motion.div>
       </main>
     );
   }
 
+  // ─── MAIN DASHBOARD ──────────────────────────────────────────────────────────
+  const navItems = [
+    { id: 'overview',  icon: LayoutDashboard, label: "Dashboard",       gradient: "from-violet-500 to-purple-600", alert: false },
+    { id: 'leads',     icon: Users,           label: "Inbound Leads",   gradient: "from-blue-500 to-cyan-500",     alert: newLeadsAlert,    count: contacts.length },
+    { id: 'bookings',  icon: Package,         label: "Shipment Orders", gradient: "from-emerald-500 to-teal-500",  alert: newBookingsAlert,  count: bookings.length },
+    { id: 'settings',  icon: Settings2,       label: "Site Control",    gradient: "from-orange-500 to-amber-500",  alert: false },
+  ];
+
+  const currentData = activeTab === 'leads' ? contacts : bookings;
+
   return (
-    <main className="min-h-screen bg-[#F8FAFC] text-slate-900 flex font-roboto select-none overflow-x-hidden">
+    <main className="min-h-screen bg-[#0A0C14] text-white flex font-roboto select-none overflow-x-hidden">
       <audio ref={audioRef} src={NOTIFICATION_SOUND} preload="auto" />
 
-      {/* Mobile Header Bar */}
+      {/* Delete Confirm Modal */}
+      {deleteId && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#111827] border border-white/10 rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl">
+            <div className="w-20 h-20 bg-red-500/20 border border-red-500/30 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={36} />
+            </div>
+            <h3 className="text-2xl font-bold mb-3">Delete Record?</h3>
+            <p className="text-slate-400 text-sm mb-8 leading-relaxed">This entry will be permanently wiped from the database. This action cannot be undone.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setDeleteId(null)} className="py-4 bg-white/5 border border-white/10 text-slate-400 rounded-2xl font-bold hover:bg-white/10 transition-all">Cancel</button>
+              <button onClick={confirmDelete} disabled={isDeleting} className="py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                {isDeleting ? <RefreshCcw size={18} className="animate-spin" /> : "Delete"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 z-[60] shadow-sm">
+        <div className="fixed top-0 left-0 right-0 h-16 bg-[#0D1117] border-b border-white/10 flex items-center justify-between px-5 z-[60]">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" className="h-8 w-auto object-contain" alt="logo" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+              <img src="/logo.png" className="w-5 h-5 object-contain" alt="logo" />
+            </div>
+            <span className="font-bold text-white text-sm">Paddlog Admin</span>
           </div>
-          <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 bg-slate-50 text-slate-500 rounded-xl border border-slate-100"
-          >
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white">
             {isSidebarOpen ? <CloseIcon size={20} /> : <Menu size={20} />}
           </button>
         </div>
       )}
-      
-      {/* Custom Delete Modal */}
-      {deleteId && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md">
-          <div className="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl border border-slate-100 text-center animate-in zoom-in-95 duration-200">
-            <div className="w-20 h-20 bg-red-50 text-[#E53935] rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle size={40} />
-            </div>
-            <h3 className="text-2xl font-bold mb-3 text-slate-900">Delete Record?</h3>
-            <p className="text-slate-500 text-sm mb-10 leading-relaxed font-medium">This entry will be wiped from our secure database clusters forever.</p>
-            <div className="grid grid-cols-2 gap-4">
-               <button 
-                onClick={() => setDeleteId(null)}
-                disabled={isDeleting}
-                className="py-4 px-6 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all font-roboto"
-               >
-                Cancel
-               </button>
-               <button 
-                onClick={confirmDelete}
-                disabled={isDeleting}
-                className="py-4 px-6 bg-[#E53935] text-white rounded-2xl font-bold hover:bg-[#B71C1C] transition-all shadow-lg shadow-red-200 flex items-center justify-center font-roboto"
-               >
-                {isDeleting ? <RefreshCcw size={20} className="animate-spin" /> : "Verify Delete"}
-               </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Responsive Sidebar Drawer */}
+      {/* Sidebar */}
       <AnimatePresence mode="wait">
         {(isSidebarOpen || !isMobile) && (
           <>
-            {/* Mobile Overlay */}
             {isMobile && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsSidebarOpen(false)}
-                className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[70]"
-              />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]" />
             )}
-            
-            <motion.aside 
-              initial={isMobile ? { x: -320 } : undefined}
+            <motion.aside
+              initial={isMobile ? { x: -280 } : undefined}
               animate={{ x: 0 }}
-              exit={isMobile ? { x: -320 } : undefined}
+              exit={isMobile ? { x: -280 } : undefined}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className={cn(
-                "bg-white border-r border-slate-200 flex flex-col p-8 font-roboto",
-                isMobile 
-                  ? "fixed inset-y-0 left-0 w-80 z-[80] shadow-2xl" 
-                  : "sticky top-0 h-screen w-80 shrink-0"
+                "bg-[#0D1117] border-r border-white/10 flex flex-col py-8 px-5",
+                isMobile ? "fixed inset-y-0 left-0 w-72 z-[80]" : "sticky top-0 h-screen w-72 shrink-0"
               )}
             >
-              <div className="flex flex-col items-center mb-12 px-2">
-                <img src="/logo.png" className="h-24 w-auto object-contain mb-4" alt="logo" />
-                <div className="h-px w-full bg-slate-100 mt-6" />
+              {/* Logo Area */}
+              <div className="flex items-center gap-3 px-3 mb-10">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center shadow-lg shadow-red-900/40">
+                  <img src="/logo.png" className="w-7 h-7 object-contain" alt="logo" />
+                </div>
+                <div>
+                  <div className="font-black text-white text-base tracking-tight">PADDLOG</div>
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Admin Panel</div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <NavItem active={activeTab === 'overview'} icon={LayoutDashboard} label="Live Monitoring" onClick={() => { setActiveTab('overview'); setIsSidebarOpen(false); }} />
-                <NavItem active={activeTab === 'leads'} icon={Users} label="Inbound Leads" onClick={() => { setActiveTab('leads'); setNewLeadsAlert(false); setIsSidebarOpen(false); }} count={contacts.length} alert={newLeadsAlert} />
-                <NavItem active={activeTab === 'bookings'} icon={Package} label="Shipment Orders" onClick={() => { setActiveTab('bookings'); setNewBookingsAlert(false); setIsSidebarOpen(false); }} count={bookings.length} alert={newBookingsAlert} />
-                <NavItem active={activeTab === 'settings'} icon={Settings2} label="Site Control" onClick={() => { setActiveTab('settings'); setIsSidebarOpen(false); }} />
+              {/* Status Badge */}
+              <div className="mx-3 mb-8 flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-emerald-400 text-[11px] font-bold uppercase tracking-wider">Systems Online</span>
               </div>
-              
-              <button 
-                onClick={logout} 
-                className="mt-auto flex items-center justify-center gap-4 px-5 py-5 text-slate-400 hover:text-[#E53935] hover:bg-red-50 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest border border-transparent hover:border-red-100"
-              >
-                <LogOut size={18} /> Disconnect Session
-              </button>
+
+              {/* Nav Items */}
+              <nav className="flex flex-col gap-1.5">
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest px-3 mb-2">Navigation</p>
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id as any); if (item.id === 'leads') setNewLeadsAlert(false); if (item.id === 'bookings') setNewBookingsAlert(false); setIsSidebarOpen(false); }}
+                    className={cn(
+                      "flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all group",
+                      activeTab === item.id ? "bg-white/10 text-white" : "text-slate-500 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-lg transition-all",
+                        activeTab === item.id ? item.gradient + " shadow-black/30" : "from-white/5 to-white/10 shadow-none"
+                      )}>
+                        <item.icon size={17} className={activeTab === item.id ? "text-white" : "text-slate-500 group-hover:text-slate-300"} />
+                      </div>
+                      <span className="text-sm font-bold">{item.label}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {item.alert && <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />}
+                      {item.count !== undefined && (
+                        <span className={cn("text-[10px] px-2 py-0.5 rounded-lg font-bold", activeTab === item.id ? "bg-white/20 text-white" : "bg-white/5 text-slate-500")}>
+                          {item.count}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </nav>
+
+              {/* Bottom */}
+              <div className="mt-auto space-y-2 px-1">
+                <div className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-xl">
+                  <Database size={13} className="text-slate-500" />
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Supabase · Stable</span>
+                </div>
+                <button onClick={logout} className="w-full flex items-center justify-center gap-3 px-4 py-3.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all font-bold text-sm border border-transparent hover:border-red-500/20">
+                  <LogOut size={16} /> Logout
+                </button>
+              </div>
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* Main Area */}
-      <div className={cn("flex-1 flex flex-col min-w-0 font-roboto", isMobile && "pt-16")}>
-        <header className="h-20 border-b border-slate-100 px-6 md:px-8 flex items-center justify-between sticky top-0 md:top-0 z-20 bg-white/80 backdrop-blur-md">
-          <div className="flex items-center gap-4 md:gap-6">
-             <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-green-50 rounded-xl md:rounded-2xl border border-green-100">
-               <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse" />
-               <span className="text-[9px] md:text-[10px] font-bold text-green-700 uppercase tracking-widest">Live Uptime</span>
-             </div>
-             <div className="hidden lg:flex items-center gap-2 text-slate-300">
-               <Database size={14} />
-               <span className="text-[10px] font-bold uppercase">Node: Supabase Stable</span>
-             </div>
-          </div>
-          
-          <div className="flex items-center gap-2 md:gap-4 font-roboto">
-            <button 
-              onClick={() => {
-                setSoundEnabled(!soundEnabled);
-                if (!soundEnabled && audioRef.current) {
-                  audioRef.current.play().catch(() => {});
-                }
-              }}
-              className={cn("flex items-center gap-2 px-4 md:px-6 py-2.5 rounded-xl md:rounded-2xl border transition-all text-[10px] md:text-xs font-bold uppercase tracking-widest", 
-                soundEnabled ? "bg-red-50 border-red-100 text-[#E53935] shadow-sm" : "bg-slate-50 border-slate-100 text-slate-400")}
-            >
-              {soundEnabled ? <Volume2 size={14} className="md:w-4 md:h-4" /> : <VolumeX size={14} className="md:w-4 md:h-4" />}
-              <span className="hidden xs:inline">{soundEnabled ? "Sound ON" : "Sound OFF"}</span>
-            </button>
+      {/* Main Content */}
+      <div className={cn("flex-1 flex flex-col min-w-0", isMobile && "pt-16")}>
 
-            <button 
-              onClick={fetchData} 
-              className={cn("p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 border border-slate-100 rounded-xl md:rounded-2xl transition-all", loading && "animate-spin")}
+        {/* Top Topbar */}
+        <header className="h-16 border-b border-white/10 px-6 flex items-center justify-between sticky top-0 z-20 bg-[#0A0C14]/90 backdrop-blur-xl">
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-lg font-black tracking-tight text-white capitalize">
+                {activeTab === 'overview' ? "Dashboard" : activeTab === 'leads' ? "Inbound Leads" : activeTab === 'bookings' ? "Shipment Orders" : "Site Control"}
+              </h1>
+              <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest hidden sm:block">Paddlog Operations Command</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {isAlertActive && (
+              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 border border-amber-500/30 rounded-xl">
+                <Bell size={14} className="text-amber-400 animate-bounce" />
+                <span className="text-amber-300 text-[11px] font-bold uppercase tracking-wider hidden sm:block">New Incoming</span>
+              </motion.div>
+            )}
+            <button
+              onClick={() => { setSoundEnabled(!soundEnabled); }}
+              className={cn("flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all",
+                soundEnabled ? "bg-red-500/20 border-red-500/30 text-red-400" : "bg-white/5 border-white/10 text-slate-500")}
             >
-              <RefreshCcw size={18} className="md:w-5 md:h-5" />
+              {soundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+              <span className="hidden sm:inline">{soundEnabled ? "ON" : "OFF"}</span>
             </button>
+            <button onClick={fetchData} className="p-2.5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 rounded-xl transition-all">
+              <RefreshCcw size={17} className={loading ? "animate-spin" : ""} />
+            </button>
+            {(activeTab === 'leads' || activeTab === 'bookings') && (
+              <button onClick={() => exportToCSV(currentData, activeTab)} className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                <Download size={14} /> Export
+              </button>
+            )}
           </div>
         </header>
 
-        <div className="p-6 md:p-12">
-          <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
-            
-            {/* New Alert Banner */}
-            {isAlertActive && (
-              <div className="bg-slate-900 text-white p-6 rounded-[2.5rem] flex items-center justify-between shadow-2xl animate-in slide-in-from-top-10 duration-500">
-                <div className="flex items-center gap-6">
-                  <div className="w-14 h-14 bg-[#E53935] rounded-2xl flex items-center justify-center animate-pulse">
-                    <Bell size={24} />
+        {/* Page Content */}
+        <div className="flex-1 p-5 md:p-8 overflow-auto">
+
+          {/* ── OVERVIEW ─────────────────────────── */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8 max-w-7xl mx-auto">
+              {/* Stat Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {[
+                  { label: "Total Leads",  value: contacts.length, icon: Users,      gradient: "from-blue-500 to-cyan-500",       glow: "shadow-blue-900/30",    onClick: () => setActiveTab('leads') },
+                  { label: "Bookings",     value: bookings.length, icon: Package,    gradient: "from-emerald-500 to-teal-500",    glow: "shadow-emerald-900/30", onClick: () => setActiveTab('bookings') },
+                  { label: "Uptime",       value: "100%",          icon: Activity,   gradient: "from-violet-500 to-purple-600",   glow: "shadow-violet-900/30",  onClick: fetchData },
+                ].map((card, i) => (
+                  <motion.div key={i} whileHover={{ y: -4, scale: 1.01 }} onClick={card.onClick}
+                    className="bg-[#111827] border border-white/10 rounded-3xl p-7 cursor-pointer hover:border-white/20 transition-all group">
+                    <div className={cn("w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-xl mb-5", card.gradient, card.glow)}>
+                      <card.icon size={26} className="text-white" />
+                    </div>
+                    <div className="text-4xl font-black text-white mb-1">{card.value}</div>
+                    <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">{card.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Recent Activity */}
+              <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                <div className="p-7 border-b border-white/10 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-white font-bold text-lg">Recent Activity</h3>
+                    <p className="text-slate-500 text-xs mt-0.5 uppercase tracking-widest font-bold">Latest leads & bookings</p>
+                  </div>
+                  <Globe size={20} className="text-slate-600" />
+                </div>
+                <div className="divide-y divide-white/5">
+                  {[...contacts.slice(0,3).map(c => ({...c, _type:'lead'})), ...bookings.slice(0,2).map(b => ({...b, _type:'booking'}))]
+                    .sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .slice(0,5).map((item: any, i) => (
+                    <div key={i} className="flex items-center gap-5 px-7 py-5 hover:bg-white/5 transition-all group cursor-pointer" onClick={() => setSelectedDetail(item)}>
+                      <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0",
+                        item._type === 'lead' ? "from-blue-500 to-cyan-500" : "from-emerald-500 to-teal-500")}>
+                        {item._type === 'lead' ? <Users size={18} className="text-white" /> : <Package size={18} className="text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white font-bold text-sm truncate">{item.name || item.customer_name || "Unknown"}</div>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wide mt-0.5">{item._type === 'lead' ? 'Lead' : 'Booking'} · {item.phone || item.customer_phone || 'N/A'}</div>
+                      </div>
+                      <div className="text-slate-600 text-xs font-bold">{new Date(item.created_at).toLocaleDateString()}</div>
+                    </div>
+                  ))}
+                  {contacts.length === 0 && bookings.length === 0 && (
+                    <div className="p-12 text-center text-slate-600 font-bold">No data yet. Waiting for incoming leads...</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── LEADS / BOOKINGS TABLE ────────────── */}
+          {(activeTab === 'leads' || activeTab === 'bookings') && (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-white/10 flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-white font-bold text-lg">{activeTab === 'leads' ? 'Inbound Leads' : 'Shipment Orders'}</h2>
+                    <p className="text-slate-500 text-xs mt-0.5 font-bold uppercase tracking-widest">{currentData.length} records in database</p>
+                  </div>
+                  <button onClick={() => exportToCSV(currentData, activeTab)} className="sm:hidden flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-slate-400 rounded-xl text-xs font-bold">
+                    <Download size={13} />
+                  </button>
+                </div>
+                {currentData.length === 0 ? (
+                  <div className="p-20 text-center">
+                    <Package size={40} className="text-slate-700 mx-auto mb-4" />
+                    <p className="text-slate-600 font-bold">No {activeTab} found.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Client</th>
+                          <th className="hidden md:table-cell px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contact</th>
+                          <th className="hidden sm:table-cell px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Service</th>
+                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                          <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-widest">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {currentData.map((item, idx) => {
+                          const statusKey = (item.status || 'pending') as keyof typeof STATUS_CONFIG;
+                          const sc = STATUS_CONFIG[statusKey] || STATUS_CONFIG.pending;
+                          return (
+                            <motion.tr
+                              key={item.id}
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.03 }}
+                              className="hover:bg-white/5 transition-all group cursor-pointer"
+                              onClick={() => setSelectedDetail(item)}
+                            >
+                              <td className="px-6 py-5">
+                                <div className="flex items-center gap-4">
+                                  <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0 text-white font-black text-sm", ICON_GRADIENTS[idx % ICON_GRADIENTS.length])}>
+                                    {(item.name || item.customer_name || "?")[0].toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <div className="text-white font-bold text-sm">{item.name || item.customer_name || "Unknown"}</div>
+                                    <div className="text-slate-500 text-xs font-bold uppercase tracking-wide">{item.company || '—'}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="hidden md:table-cell px-6 py-5">
+                                <div className="text-slate-300 text-sm font-bold">{item.phone || item.customer_phone || '—'}</div>
+                                <div className="text-slate-600 text-xs mt-0.5 truncate max-w-[160px]">{item.email || item.customer_email || '—'}</div>
+                              </td>
+                              <td className="hidden sm:table-cell px-6 py-5">
+                                <span className="px-3 py-1.5 bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold rounded-xl uppercase tracking-wider">
+                                  {item.service || item.service_type || 'General'}
+                                </span>
+                              </td>
+                              <td className="px-6 py-5" onClick={e => e.stopPropagation()}>
+                                <select
+                                  value={item.status || 'pending'}
+                                  onChange={(e) => updateStatus(item.id, activeTab === 'leads' ? 'contacts' : 'bookings', e.target.value)}
+                                  className={cn("text-[10px] font-bold uppercase px-3 py-1.5 rounded-xl border bg-transparent cursor-pointer tracking-wider transition-all", sc.color)}
+                                >
+                                  {['pending','verified','called','completed'].map(s => <option key={s} value={s} className="bg-[#111827] text-white normal-case">{s}</option>)}
+                                </select>
+                              </td>
+                              <td className="px-6 py-5 text-slate-500 text-xs font-bold">
+                                {new Date(item.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})}
+                              </td>
+                              <td className="px-6 py-5" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center justify-end gap-2">
+                                  <button onClick={() => setSelectedDetail(item)} className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-blue-500/20 text-slate-500 hover:text-blue-400 border border-white/10 hover:border-blue-500/30 rounded-xl transition-all">
+                                    <Eye size={15} />
+                                  </button>
+                                  <button onClick={() => setDeleteId({ table: activeTab === 'leads' ? 'contacts' : 'bookings', id: item.id })}
+                                    className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-slate-500 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl transition-all">
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </motion.tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── SETTINGS ─────────────────────────── */}
+          {activeTab === 'settings' && (
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-[#111827] border border-white/10 rounded-3xl overflow-hidden">
+                <div className="p-7 border-b border-white/10 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-900/30">
+                    <Zap size={22} className="text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-lg uppercase">Update Detected</h4>
-                    <p className="text-white/60 text-xs font-medium uppercase tracking-widest mt-1">New data stream confirmed across clusters.</p>
+                    <h3 className="text-white font-bold text-lg">Site Controller</h3>
+                    <p className="text-slate-500 text-xs uppercase tracking-widest font-bold">Manage section visibility</p>
                   </div>
                 </div>
-                <button onClick={() => setIsAlertActive(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-xl transition-colors">
-                  <CloseIcon size={20} />
-                </button>
-              </div>
-            )}
-
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                   {activeTab === 'overview' ? "Dashboard" : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                   <span className="text-[#E53935] ml-1">.</span>
-                </h1>
-                <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.4em] mt-3 md:mt-4">Operational Fleet Monitoring</p>
-              </div>
-              
-              {(activeTab === 'leads' || activeTab === 'bookings') && (
-                <button 
-                  onClick={() => exportToCSV(activeTab === 'leads' ? contacts : bookings, activeTab)}
-                  className="flex items-center justify-center gap-3 px-6 md:px-8 py-3 md:py-4 bg-slate-900 text-white rounded-xl md:rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl w-full md:w-auto"
-                >
-                  <Download size={16} /> Export Cloud Data
-                </button>
-              )}
-            </div>
-
-            {activeTab === 'overview' && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <StatCard 
-                  label="Leads Ingress" 
-                  value={contacts.length} 
-                  icon={MessageSquare} 
-                  color="red" 
-                  onClick={() => setActiveTab('leads')}
-                  activeSection={true}
-                />
-                <StatCard 
-                  label="Order Stack" 
-                  value={bookings.length} 
-                  icon={Package} 
-                  color="blue" 
-                  onClick={() => setActiveTab('bookings')}
-                  activeSection={true}
-                />
-                <StatCard 
-                  label="Live Uptime" 
-                  value="100%" 
-                  icon={Activity} 
-                  color="green" 
-                  onClick={fetchData}
-                  activeSection={false}
-                />
-              </div>
-            )}
-
-            {(activeTab === 'leads' || activeTab === 'bookings') && (
-              <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-xl shadow-slate-200/40 overflow-hidden font-roboto">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100">
-                        <th className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Identification</th>
-                        <th className="hidden sm:table-cell px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Service Unit</th>
-                        <th className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Date Logged</th>
-                        <th className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Cluster Ops</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {(activeTab === 'leads' ? contacts : bookings).map((item) => (
-                        <tr key={item.id} className="hover:bg-slate-50/50 transition-all group">
-                          <td className="px-4 md:px-8 py-4 md:py-6">
-                            <div className="font-bold text-base md:text-lg text-slate-800 leading-tight truncate max-w-[120px] md:max-w-none">
-                              {item.name || item.customer_name || "Unknown Client"}
-                            </div>
-                            <div className="flex flex-col gap-0.5 mt-1">
-                              { (item.phone || item.customer_phone) && (
-                                <div className="text-[10px] md:text-[11px] text-[#E53935] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                                  <Phone size={10} />
-                                  {item.phone || item.customer_phone}
-                                </div>
-                              )}
-                              {(item.email || item.customer_email) && !(item.email?.includes('exitpopup')) && (
-                                <div className="hidden sm:block text-[10px] text-slate-400 font-bold uppercase tracking-wider opacity-80 truncate max-w-[150px]">
-                                  {item.email || item.customer_email}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="hidden sm:table-cell px-4 md:px-8 py-4 md:py-6">
-                            <span className="px-2 md:px-3 py-1 bg-white border border-slate-200 text-slate-500 text-[9px] md:text-[10px] font-bold rounded-lg md:rounded-xl uppercase tracking-widest shadow-sm">
-                              {item.service || item.service_type || 'General'}
-                            </span>
-                          </td>
-                          <td className="px-4 md:px-8 py-4 md:py-6 text-[10px] md:text-xs text-slate-400 font-bold uppercase">
-                            {new Date(item.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="px-4 md:px-8 py-4 md:py-6 text-right">
-                            <div className="flex items-center justify-end gap-1 md:gap-2">
-                              <button 
-                                onClick={() => setSelectedDetail(item)}
-                                className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-slate-50 text-slate-400 hover:text-slate-900 border border-slate-100 rounded-lg md:rounded-xl transition-all"
-                              >
-                                <Eye size={16} className="md:w-[18px] md:h-[18px]" />
-                              </button>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteId({ table: activeTab === 'leads' ? 'contacts' : 'bookings', id: item.id });
-                                }}
-                                className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-white text-slate-200 hover:text-[#E53935] hover:bg-red-50 hover:border-red-100 border border-slate-100 rounded-lg md:rounded-xl transition-all"
-                              >
-                                <Trash2 size={16} className="md:w-[18px] md:h-[18px]" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'settings' && (
-              <div className="max-w-2xl bg-white border border-slate-100 rounded-[3rem] p-12 shadow-2xl shadow-slate-200/30">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-12 h-12 bg-[#E53935] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-200">
-                    <Zap size={24} />
-                  </div>
-                  <h3 className="text-2xl font-bold uppercase tracking-tight">Main Logic Controller</h3>
-                </div>
-                <div className="space-y-4 font-roboto">
+                <div className="p-6 space-y-3">
                   {Object.entries(settings.section_visibility || {}).map(([key, val]: any) => (
-                    <div key={key} className="flex items-center justify-between p-7 bg-slate-50 rounded-3xl border border-slate-100 hover:bg-white hover:border-[#E53935]/20 transition-all group">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] group-hover:text-slate-900 transition-colors uppercase">{key.replace('_', ' ')}</span>
-                      <button 
+                    <div key={key} className="flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/8 group transition-all">
+                      <div>
+                        <div className="text-white font-bold text-sm capitalize">{key.replace('_', ' ')}</div>
+                        <div className="text-slate-500 text-xs mt-0.5 font-bold uppercase tracking-wider">{val ? 'Visible on site' : 'Hidden from site'}</div>
+                      </div>
+                      <button
                         onClick={async () => {
                           const newVal = { ...settings.section_visibility, [key]: !val };
                           await supabase.from('site_settings').update({ value: newVal }).eq('key', 'section_visibility');
                           fetchData();
                         }}
-                        className={cn("w-14 h-7 rounded-full transition-all relative flex items-center px-1.5", val ? "bg-[#E53935] shadow-lg shadow-red-200" : "bg-slate-300")}
+                        className={cn("w-14 h-7 rounded-full transition-all relative flex items-center px-1", val ? "bg-gradient-to-r from-emerald-500 to-teal-500" : "bg-white/10")}
                       >
-                        <div className={cn("w-4 h-4 bg-white rounded-full transition-all shadow-md", val ? "translate-x-7" : "translate-x-0")} />
+                        <div className={cn("w-5 h-5 bg-white rounded-full transition-all shadow-md", val ? "translate-x-7" : "translate-x-0")} />
                       </button>
                     </div>
                   ))}
+                  {Object.keys(settings.section_visibility || {}).length === 0 && (
+                    <div className="p-12 text-center text-slate-600 font-bold">No settings found in database.</div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Detail Modal - Fully Responsive High-Fidelity Dashboard */}
+      {/* Detail Modal */}
       <AnimatePresence>
         {selectedDetail && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 lg:p-12 overflow-hidden">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedDetail(null)}
-              className="absolute inset-0 bg-slate-900/95 backdrop-blur-3xl" 
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 1, y: '100%' }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 1, y: '100%' }}
+          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSelectedDetail(null)} className="absolute inset-0 bg-black/80 backdrop-blur-xl" />
+
+            <motion.div
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 60 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative bg-white w-full h-full md:h-auto md:max-w-6xl md:rounded-[2.5rem] shadow-2xl overflow-hidden z-10 flex flex-col max-h-screen md:max-h-[94vh]"
+              className="relative bg-[#111827] border border-white/10 w-full max-w-4xl rounded-t-3xl md:rounded-3xl shadow-2xl z-10 overflow-hidden max-h-[95vh] flex flex-col"
             >
-                {/* Header Section - Mobile Optimized */}
-                <div className="bg-slate-900 text-white p-5 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 shrink-0">
-                   <div className="flex items-center gap-4 md:gap-6">
-                      <div className="w-12 h-12 md:w-16 md:h-16 bg-[#E53935] rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
-                         <Package size={24} className="md:hidden" />
-                         <Package size={32} className="hidden md:block" />
-                      </div>
-                      <div className="min-w-0">
-                         <h3 className="text-xl md:text-3xl font-black tracking-tight uppercase truncate">Operational Intel</h3>
-                         <div className="flex items-center gap-2 md:gap-3 mt-1">
-                             <span className="px-2 py-0.5 bg-white/10 rounded text-[8px] md:text-[10px] font-black tracking-widest uppercase truncate max-w-[120px]">ID: {selectedDetail.id?.slice(0,12)}</span>
-                             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0" />
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="flex items-center justify-between md:justify-end gap-4">
-                      {/* Desktop Status Pill Group */}
-                      <div className="hidden md:flex bg-white/5 border border-white/10 rounded-2xl p-1.5 gap-1">
-                        {['pending', 'verified', 'called', 'completed'].map((s) => (
-                          <button 
-                            key={s}
-                            onClick={() => updateStatus(selectedDetail.id, activeTab === 'leads' ? 'contacts' : 'bookings', s)}
-                            className={cn("px-4 py-2 text-[10px] font-black uppercase rounded-xl transition-all", 
-                              selectedDetail.status === s 
-                                ? "bg-[#E53935] text-white" 
-                                : "text-white/30 hover:text-white hover:bg-white/5"
-                            )}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                      
-                      {/* Mobile Visible Close Button */}
-                      <button 
-                        onClick={() => setSelectedDetail(null)}
-                        className="ml-auto w-12 h-12 md:w-14 md:h-14 bg-white/10 hover:bg-[#E53935] text-white rounded-xl md:rounded-2xl flex items-center justify-center transition-all border border-white/10"
-                      >
-                        <CloseIcon size={24} />
-                      </button>
-                   </div>
+              {/* Modal Header */}
+              <div className="relative px-7 py-6 border-b border-white/10 flex items-center justify-between gap-4 shrink-0 bg-gradient-to-r from-[#0D1117] to-[#111827]">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-900/40 text-white font-black text-lg">
+                    {(selectedDetail.name || selectedDetail.customer_name || "?")[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="text-white font-black text-xl">{selectedDetail.name || selectedDetail.customer_name || "Unknown"}</h3>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-slate-500 text-xs font-bold">ID: {selectedDetail.id?.slice(0,8)}...</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                    </div>
+                  </div>
                 </div>
-
-                <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
-                   <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr]">
-                      
-                      {/* Left Column: Fixed core info on desktop, stacks on mobile */}
-                      <div className="bg-white border-b lg:border-b-0 lg:border-r border-slate-100 p-6 md:p-12 space-y-10 md:space-y-12">
-                         <section>
-                            <h4 className="text-[10px] font-black text-[#E53935] uppercase tracking-[0.4em] mb-6 md:mb-10 flex items-center gap-2">
-                               <span className="w-1 h-4 bg-[#E53935] rounded-full" />
-                               Primary Target
-                            </h4>
-                            
-                            <div className="space-y-8">
-                               <div>
-                                  <label className="text-[9px] font-bold text-slate-300 uppercase tracking-widest block mb-1">Legal Identifier</label>
-                                  <div className="text-2xl md:text-3xl font-black text-slate-900 leading-tight uppercase break-words">
-                                     {selectedDetail.name || selectedDetail.customer_name || "Unknown Entity"}
-                                  </div>
-                               </div>
-
-                               <div className="space-y-4">
-                                  <div className="p-5 md:p-6 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100">
-                                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Direct Line</label>
-                                     <div className="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-3">
-                                        <Phone size={18} className="text-[#E53935]" />
-                                        {selectedDetail.phone || selectedDetail.customer_phone || "No Link"}
-                                     </div>
-                                  </div>
-                                  {selectedDetail.email && !selectedDetail.email.includes('no-email') && (
-                                     <div className="p-5 md:p-6 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100">
-                                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Encrypted Mail</label>
-                                        <div className="text-sm font-bold text-slate-700 flex items-center gap-3 break-all">
-                                           <MessageSquare size={18} className="text-slate-300" />
-                                           {selectedDetail.email}
-                                        </div>
-                                     </div>
-                                  )}
-                               </div>
-                            </div>
-                         </section>
-
-                         {/* Mobile Status Controls */}
-                         <div className="md:hidden space-y-4">
-                            <label className="text-[9px] font-bold text-slate-300 uppercase tracking-widest block font-black">Status Management</label>
-                            <div className="grid grid-cols-2 gap-2">
-                               {['pending', 'verified', 'called', 'completed'].map((s) => (
-                                <button 
-                                   key={s}
-                                   onClick={() => updateStatus(selectedDetail.id, activeTab === 'leads' ? 'contacts' : 'bookings', s)}
-                                   className={cn("px-4 py-3 text-[10px] font-black uppercase rounded-xl border transition-all text-center", 
-                                     selectedDetail.status === s 
-                                       ? "bg-[#E53935] text-white border-[#E53935]" 
-                                       : "bg-white text-slate-400 border-slate-100"
-                                   )}
-                                >
-                                   {s}
-                                </button>
-                               ))}
-                            </div>
-                         </div>
-
-                         <section className="pt-8 border-t border-slate-50">
-                            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                               <span className="text-[9px] font-black text-slate-400 uppercase">Registered</span>
-                               <span className="text-[10px] font-black text-slate-900">{new Date(selectedDetail.created_at).toLocaleDateString()}</span>
-                            </div>
-                         </section>
-                      </div>
-
-                      {/* Right Column: Cards Grid */}
-                      <div className="p-6 md:p-12 lg:p-16">
-                         <div className="max-w-5xl mx-auto">
-                            <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mb-8 md:mb-12 flex items-center gap-4">
-                               Technical Specs 
-                               <Activity size={12} className="text-[#E53935]" />
-                            </h4>
-                            
-                            {(() => {
-                               let displayData = selectedDetail.service_details || selectedDetail.message || {};
-                               if (typeof displayData === 'string' && displayData.startsWith('{')) {
-                                  try { displayData = JSON.parse(displayData); } catch(e) {}
-                               }
-
-                               if (typeof displayData === 'object' && Object.keys(displayData).length > 0) {
-                                  // Organise data into a clean list instead of cards
-                                  const getLabel = (key: string) => {
-                                    const labels: any = {
-                                      serviceId: 'Service Type', isDG: 'Dangerous Goods', unNumber: 'UN Number',
-                                      packingGroup: 'Packing Group', origin: 'Origin Hub', destination: 'Target Hub',
-                                      cargoType: 'Cargo Classification', boxType: 'Packaging Type', isImport: 'Importation'
-                                    };
-                                    return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
-                                  };
-
-                                  const formatValue = (val: any) => {
-                                    if (typeof val === 'boolean') return val ? 'YES' : 'NO';
-                                    if (val === 'true') return 'YES';
-                                    if (val === 'false') return 'NO';
-                                    return String(val);
-                                  };
-
-                                  const filteredData = Object.entries(displayData).filter(([k]) => 
-                                    !['name', 'email', 'phone', 'customer_name', 'customer_email', 'customer_phone', 'id', 'created_at'].includes(k.toLowerCase())
-                                  );
-
-                                  return (
-                                    <div className="space-y-1">
-                                      {filteredData.map(([k, v]: [string, any], index) => {
-                                        const Icon = KEY_ICONS[k.toLowerCase()] || Activity;
-                                        return (
-                                          <motion.div 
-                                            key={k}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            className="flex flex-col sm:flex-row sm:items-center justify-between py-5 px-6 md:px-10 hover:bg-slate-50 border-b border-slate-100 group transition-all"
-                                          >
-                                            <div className="flex items-center gap-5">
-                                              <div className="w-10 h-10 bg-white border border-slate-100 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-[#E53935] group-hover:text-white transition-all shadow-sm">
-                                                <Icon size={16} />
-                                              </div>
-                                              <div>
-                                                <div className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{getLabel(k)}</div>
-                                              </div>
-                                            </div>
-                                            <div className="text-slate-900 font-black text-sm md:text-lg tracking-tight uppercase pl-14 sm:pl-0">
-                                              {formatValue(v)}
-                                            </div>
-                                          </motion.div>
-                                        );
-                                      })}
-                                    </div>
-                                  );
-                               }
-
-                               return (
-                                  <div className="p-10 md:p-20 bg-white rounded-[2rem] md:rounded-[4rem] border border-slate-100 text-center">
-                                     <p className="text-lg md:text-2xl font-black text-slate-900 italic opacity-40">
-                                        "{String(displayData) || "Payload empty."}"
-                                     </p>
-                                  </div>
-                               );
-                            })()}
-
-                            <div className="mt-12 md:mt-20 pt-10 border-t border-slate-100">
-                                <button 
-                                   onClick={() => setSelectedDetail(null)}
-                                   className="w-full md:w-auto px-10 py-5 bg-slate-900 text-white font-black text-[10px] uppercase tracking-[0.3em] rounded-2xl hover:bg-[#E53935] transition-all flex items-center justify-center gap-3"
-                                >
-                                   <ShieldCheck size={18} /> Exit Matrix
-                                </button>
-                            </div>
-                         </div>
-                      </div>
-                   </div>
+                <div className="flex items-center gap-3">
+                  {/* Status Switcher */}
+                  <div className="hidden sm:flex bg-white/5 border border-white/10 rounded-2xl p-1.5 gap-1">
+                    {['pending','verified','called','completed'].map(s => {
+                      const sc = STATUS_CONFIG[s];
+                      return (
+                        <button key={s} onClick={() => updateStatus(selectedDetail.id, activeTab === 'leads' ? 'contacts' : 'bookings', s)}
+                          className={cn("px-4 py-2 text-[10px] font-black uppercase rounded-xl transition-all tracking-wider border",
+                            selectedDetail.status === s ? sc.color : "text-slate-600 border-transparent hover:text-slate-300 hover:bg-white/5")}>
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button onClick={() => setSelectedDetail(null)} className="w-10 h-10 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 rounded-xl flex items-center justify-center transition-all">
+                    <CloseIcon size={18} />
+                  </button>
                 </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="overflow-y-auto flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-[260px_1fr]">
+                  
+                  {/* Left - Client Info */}
+                  <div className="border-b md:border-b-0 md:border-r border-white/10 p-7 space-y-6">
+                    {/* Status badge */}
+                    {(() => {
+                      const sc = STATUS_CONFIG[(selectedDetail.status || 'pending')] || STATUS_CONFIG.pending;
+                      return (
+                        <div className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-black uppercase tracking-wider", sc.color)}>
+                          <span className={cn("w-2 h-2 rounded-full", sc.dot)} />
+                          {selectedDetail.status || 'Pending'}
+                        </div>
+                      );
+                    })()}
+
+                    <div>
+                      <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mb-3">Client Details</p>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shrink-0">
+                            <Users size={16} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Name</p>
+                            <p className="text-white font-bold text-sm">{selectedDetail.name || selectedDetail.customer_name || 'N/A'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center shrink-0">
+                            <Phone size={16} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Phone</p>
+                            <p className="text-white font-bold text-sm">{selectedDetail.phone || selectedDetail.customer_phone || 'N/A'}</p>
+                          </div>
+                        </div>
+                        {(selectedDetail.email || selectedDetail.customer_email) && (
+                          <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center shrink-0">
+                              <MessageSquare size={16} className="text-white" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Email</p>
+                              <p className="text-white font-bold text-xs break-all">{selectedDetail.email || selectedDetail.customer_email}</p>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shrink-0">
+                            <Calendar size={16} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Registered</p>
+                            <p className="text-white font-bold text-sm">{new Date(selectedDetail.created_at).toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'})}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile status switcher */}
+                    <div className="sm:hidden space-y-2">
+                      <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Update Status</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['pending','verified','called','completed'].map(s => {
+                          const sc = STATUS_CONFIG[s];
+                          return (
+                            <button key={s} onClick={() => updateStatus(selectedDetail.id, activeTab === 'leads' ? 'contacts' : 'bookings', s)}
+                              className={cn("px-3 py-3 text-[10px] font-black uppercase rounded-xl border transition-all text-center tracking-wider",
+                                selectedDetail.status === s ? sc.color : "bg-white/5 border-white/10 text-slate-600")}>
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right - Technical Data List */}
+                  <div className="p-7">
+                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-5 flex items-center gap-3">
+                      Technical Specifications <Activity size={12} className="text-blue-400" />
+                    </p>
+                    {(() => {
+                      let displayData = selectedDetail.service_details || selectedDetail.message || {};
+                      if (typeof displayData === 'string' && displayData.startsWith('{')) {
+                        try { displayData = JSON.parse(displayData); } catch(e) {}
+                      }
+                      const getLabel = (key: string) => {
+                        const labels: any = { serviceId:'Service Type', isDG:'Dangerous Goods', unNumber:'UN Number', packingGroup:'Packing Group', origin:'Origin Hub', destination:'Target Hub', cargoType:'Cargo Classification', boxType:'Packaging Type', isImport:'Importation' };
+                        return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+                      };
+                      const formatValue = (val: any) => {
+                        if (typeof val === 'boolean') return val ? 'Yes' : 'No';
+                        if (val === 'true') return 'Yes'; if (val === 'false') return 'No';
+                        return String(val);
+                      };
+                      const filteredData = typeof displayData === 'object' ? Object.entries(displayData).filter(([k]) =>
+                        !['name','email','phone','customer_name','customer_email','customer_phone','id','created_at'].includes(k.toLowerCase())
+                      ) : [];
+
+                      if (filteredData.length === 0) return (
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                          <CheckCircle2 size={40} className="text-slate-700 mb-4" />
+                          <p className="text-slate-600 font-bold">No additional technical data</p>
+                        </div>
+                      );
+
+                      return (
+                        <div className="space-y-3">
+                          {filteredData.map(([k, v]: [string, any], index) => {
+                            const Icon = KEY_ICONS[k.toLowerCase()] || Activity;
+                            const gradient = ICON_GRADIENTS[index % ICON_GRADIENTS.length];
+                            return (
+                              <motion.div key={k}
+                                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}
+                                className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/8 border border-white/10 rounded-2xl group transition-all"
+                              >
+                                <div className="flex items-center gap-4">
+                                  <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0 shadow-lg", gradient)}>
+                                    <Icon size={16} className="text-white" />
+                                  </div>
+                                  <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{getLabel(k)}</div>
+                                </div>
+                                <div className="text-white font-black text-sm tracking-tight">{formatValue(v)}</div>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="border-t border-white/10 px-7 py-5 shrink-0 flex items-center justify-between bg-[#0D1117]">
+                <span className="text-slate-600 text-xs font-bold uppercase tracking-widest hidden sm:block">Paddlog Admin · {activeTab === 'leads' ? 'Lead' : 'Booking'} Detail</span>
+                <button onClick={() => setSelectedDetail(null)}
+                  className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white rounded-2xl font-bold text-sm transition-all">
+                  <CloseIcon size={16} /> Close
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-     </main>
-  );
-}
-
-function NavItem({ active, icon: Icon, label, onClick, count, alert }: any) {
-  return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "flex items-center justify-between px-6 py-4 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest h-16 relative",
-        active ? "bg-slate-900 text-white shadow-2xl" : "text-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-sm"
-      )}
-    >
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Icon size={20} className={cn(active ? "text-[#E53935]" : "text-slate-300")} />
-          {alert && (
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-            </span>
-          )}
-        </div>
-        {label}
-      </div>
-      {count !== undefined && (
-        <span className={cn("text-[10px] px-2.5 py-1 rounded-lg font-bold", active ? "bg-white/10 text-white" : "bg-slate-100 text-slate-400")}>
-          {count}
-        </span>
-      )}
-    </button>
-  );
-}
-
-function StatCard({ label, value, icon: Icon, color, onClick, activeSection }: any) {
-  const styles: any = {
-    red: "bg-red-50 text-[#E53935] border-red-100",
-    blue: "bg-blue-50 text-blue-600 border-blue-100",
-    green: "bg-green-50 text-green-600 border-green-100"
-  };
-  return (
-    <div 
-      onClick={onClick}
-      className={cn(
-        "bg-white border border-slate-100 p-8 md:p-12 rounded-[2rem] md:rounded-[2.5rem] shadow-xl shadow-slate-200/20 flex flex-col items-center text-center group hover:-translate-y-2 transition-all cursor-pointer",
-        activeSection && "hover:border-[#E53935]/30"
-      )}
-    >
-      <div className={cn("w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 border shadow-sm group-hover:scale-110 transition-transform", styles[color])}>
-        <Icon size={24} className="md:w-8 md:h-8" />
-      </div>
-      <div className="text-4xl md:text-6xl font-black text-slate-900 mb-2 leading-none">{value}</div>
-      <div className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] md:tracking-[0.4em] leading-none mt-2">{label}</div>
-    </div>
+    </main>
   );
 }
