@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard, Users, Package, Bell,
-  Trash2, LogOut, Settings2, Eye, ShieldCheck, Zap, Activity, Menu,
+  Trash2, LogOut, Settings2, Eye, EyeOff, ShieldCheck, Zap, Activity, Menu,
   RefreshCcw, Volume2, VolumeX, Download, X as CloseIcon, AlertTriangle, MessageSquare, Phone,
   MapPin, Navigation, Clock, CreditCard, Box, Calendar, TrendingUp, Globe, CheckCircle2
 } from "lucide-react";
+import { verifyAdminPassword } from "./actions";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +24,7 @@ const STATUS_CONFIG: any = {
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'bookings' | 'settings'>('overview');
   const [contacts, setContacts] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
@@ -71,17 +73,25 @@ export default function AdminDashboard() {
     if (auth === "true") setIsAuthenticated(true);
   }, []);
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "Paddlog@2024") {
-      setIsAuthenticated(true);
-      localStorage.setItem("paddlog_admin_auth", "true");
-      if (audioRef.current) {
-        audioRef.current.play().then(() => { audioRef.current!.pause(); audioRef.current!.currentTime = 0; }).catch(() => {});
+    setLoading(true);
+    try {
+      const result = await verifyAdminPassword(password);
+      if (result.success) {
+        setIsAuthenticated(true);
+        localStorage.setItem("paddlog_admin_auth", "true");
+        if (audioRef.current) {
+          audioRef.current.play().then(() => { audioRef.current!.pause(); audioRef.current!.currentTime = 0; }).catch(() => {});
+        }
+        if ("Notification" in window) Notification.requestPermission();
+      } else {
+        alert(result.message || "Invalid Access Key");
       }
-      if ("Notification" in window) Notification.requestPermission();
-    } else {
-      alert("Invalid Access Key");
+    } catch (err) {
+      alert("Verification failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -296,19 +306,29 @@ export default function AdminDashboard() {
               <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest">Admin Access Portal</p>
             </div>
             <form onSubmit={handleAuth} className="space-y-4">
-              <div className="relative">
-                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+              <div className="relative group">
+                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 group-focus-within:text-red-500 transition-colors" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter access key..."
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-5 outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/20 transition-all text-white placeholder-slate-600 font-medium tracking-widest"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/20 transition-all text-white placeholder-slate-600 font-medium tracking-widest"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoFocus
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors p-1"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
-              <button className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white py-4 rounded-2xl font-bold tracking-widest text-sm transition-all shadow-lg shadow-red-900/40 active:scale-95">
-                AUTHENTICATE →
+              <button 
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white py-4 rounded-2xl font-bold tracking-widest text-sm transition-all shadow-lg shadow-red-900/40 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "AUTHENTICATING..." : "AUTHENTICATE →"}
               </button>
             </form>
           </div>
