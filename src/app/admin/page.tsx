@@ -41,6 +41,12 @@ export default function AdminDashboard() {
   const [isDeleting, setIsDeleting] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !audioRef.current) {
+      audioRef.current = new Audio(NOTIFICATION_SOUND);
+    }
+  }, []);
+
   const KEY_ICONS: any = {
     phone: Phone, email: MessageSquare, weight: TrendingUp,
     origin: MapPin, pickup: MapPin, destination: Navigation,
@@ -70,7 +76,11 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const auth = localStorage.getItem("paddlog_admin_auth");
-    if (auth === "true") setIsAuthenticated(true);
+    if (auth === "true") {
+      setIsAuthenticated(true);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const handleAuth = async (e: React.FormEvent) => {

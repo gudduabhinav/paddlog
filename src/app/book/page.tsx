@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, FileText, Plane, Ship, ShieldCheck, Warehouse,
   ArrowRight, CheckCircle2, Check, AlertCircle,
-  User, Mail, Phone, Building2, MapPin, Box, Weight, Search, Download
+  User, Mail, Phone, Building2, MapPin, Box, Weight, Search, Download,
+  CreditCard, RefreshCcw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
-import jsPDF from "jspdf";
+import { createPaymentOrder } from "./payment-actions";
+import Script from "next/script";
 
 const services = [
   { 
@@ -122,97 +124,234 @@ export default function BookServicePage() {
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const primaryColor = [225, 29, 72];
-    const darkColor = [10, 15, 30];
-
-    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.rect(0, 0, 210, 40, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(30);
-    doc.setFont("helvetica", "bold");
-    doc.text("PADDLOG", 20, 25);
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("DANGEROUS GOODS LOGISTICS SPECIALIST", 20, 32);
-
-    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.setFontSize(12);
-    doc.text("BOOKING CONFIRMATION", 20, 55);
-
-    doc.setTextColor(100, 116, 139);
-    doc.setFontSize(10);
-    doc.text("CUSTOMER DETAILS", 20, 90);
-    doc.setDrawColor(226, 232, 240);
-    doc.line(20, 92, 190, 92);
-
-    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.setFontSize(11);
-    doc.text(`Name: ${formData.name}`, 20, 102);
-    doc.text(`Email: ${formData.email}`, 20, 110);
-    doc.text(`Phone: ${formData.phone}`, 20, 118);
-    if(formData.company) doc.text(`Company: ${formData.company}`, 20, 126);
-
     const serviceTitle = services.find(s => s.id === formData.serviceId)?.title || "General Logistics";
-    doc.setTextColor(100, 116, 139);
-    doc.setFontSize(10);
-    doc.text("SERVICE DETAILS", 20, 145);
-    doc.line(20, 147, 190, 147);
+    const logoUrl = window.location.origin + '/logo.png';
+    const bookingRef = `PL-${Date.now().toString().slice(-8)}`;
+    const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
-    doc.text(`Service Type: ${serviceTitle}`, 20, 157);
-    if(formData.origin) doc.text(`Origin: ${formData.origin}`, 20, 165);
-    if(formData.destination) doc.text(`Destination: ${formData.destination}`, 20, 173);
-    if(formData.unNumber) doc.text(`UN Number: ${formData.unNumber}`, 20, 181);
-    if(formData.quantity) doc.text(`Quantity: ${formData.quantity}`, 20, 189);
+    const fieldLabels: Record<string, string> = {
+      boxType: 'Packaging Type', quantity: 'Quantity', unRating: 'UN Rating',
+      cargoType: 'Cargo Type', unNumber: 'UN Number', packingGroup: 'Packing Group',
+      origin: 'Origin Port/City', destination: 'Destination Port/City', weight: 'Est. Weight',
+      containerType: 'Container Type', entryPoint: 'Entry/Exit Port', commodityType: 'Commodity Type',
+      isImport: 'Type', duration: 'Storage Duration', storageType: 'Storage Type', isDG: 'Dangerous Goods'
+    };
 
-    doc.setFillColor(248, 250, 252);
-    doc.rect(0, 260, 210, 37, 'F');
-    doc.setTextColor(100, 116, 139);
-    doc.setFontSize(9);
-    doc.text("Our team will contact you shortly with next steps.", 105, 275, { align: "center" });
-    doc.text("This is an electronically generated document. No signature required.", 105, 282, { align: "center" });
+    const selectedService = services.find(s => s.id === formData.serviceId);
+    const serviceRows = (selectedService?.fields || []).filter(f => formData[f]).map(f => ({
+      label: fieldLabels[f] || f, value: formData[f]
+    }));
 
-    doc.save(`Paddlog_Booking.pdf`);
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Paddlog Booking Confirmation – ${bookingRef}</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #e2e8f0; color: #1e293b; }
+    @media print { 
+      body { background: #fff; } 
+      .no-print { display:none; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+  </style>
+</head>
+<body style="padding: 24px;">
+<div style="max-width:740px;margin:0 auto;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)">
+
+  <!-- HEADER -->
+  <div style="background:linear-gradient(135deg, #1e1b4b 0%, #701a75 50%, #831843 100%);padding:48px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-40px;width:250px;height:250px;background:linear-gradient(135deg, rgba(244,63,94,0.4), rgba(225,29,72,0));border-radius:50%"></div>
+    <div style="position:absolute;bottom:-60px;left:5%;width:180px;height:180px;background:linear-gradient(to top right, rgba(99,102,241,0.3), rgba(79,70,229,0));border-radius:50%"></div>
+    
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1">
+      <img src="${logoUrl}" style="height:64px;width:auto;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.3)) brightness(1.2)" />
+      <div style="text-align:right">
+        <div style="color:rgba(255,255,255,0.6);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.25em">Reference No.</div>
+        <div style="color:#fff;font-size:20px;font-weight:900;font-family:monospace;margin-top:4px;text-shadow: 0 2px 4px rgba(0,0,0,0.5)">${bookingRef}</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:10px;font-weight:600;margin-top:6px">${dateStr}</div>
+      </div>
+    </div>
+    
+    <div style="margin-top:36px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,0.15)">
+      <div style="display:inline-block;background:linear-gradient(to right, #f43f5e, #e11d48);color:#fff;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.2em;padding:6px 16px;border-radius:999px;box-shadow: 0 4px 12px rgba(225,29,72,0.4)">Booking Confirmation</div>
+      <h1 style="color:#fff;font-size:32px;font-weight:900;margin-top:16px;letter-spacing:-0.02em;text-shadow: 0 2px 8px rgba(0,0,0,0.3)">Your Shipment is <span style="background:linear-gradient(to right, #fb7185, #f43f5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Confirmed.</span></h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:8px;font-weight:500">Payment verified · Our team will contact you within 24 hours</p>
+    </div>
+    
+    <!-- Service Banner -->
+    <div style="display:flex;align-items:center;gap:16px;padding-top:24px;position:relative;z-index:1">
+      <div style="width:48px;height:48px;background:linear-gradient(135deg, #f43f5e, #be123c);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px rgba(190,18,60,0.4)">
+        <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div>
+        <div style="color:rgba(255,255,255,0.6);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.2em">Selected Service</div>
+        <div style="color:#fff;font-size:18px;font-weight:800;margin-top:2px">${serviceTitle}</div>
+      </div>
+      <div style="margin-left:auto;background:linear-gradient(to right, #10b981, #059669);color:#fff;font-size:11px;font-weight:800;padding:6px 16px;border-radius:999px;text-transform:uppercase;letter-spacing:0.15em;box-shadow:0 4px 12px rgba(16,185,129,0.3)">✓ Paid</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div style="padding:40px 48px">
+
+    <!-- Client Info -->
+    <div style="margin-bottom:32px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <div style="width:6px;height:24px;background:linear-gradient(to bottom, #f43f5e, #e11d48);border-radius:3px"></div>
+        <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.25em;color:#0f172a">Client Information</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:linear-gradient(135deg, #fff1f2, #ffe4e6);border:1px solid #fecdd3;border-radius:16px;padding:20px;box-shadow:0 4px 6px rgba(225,29,72,0.05)">
+          <div style="font-size:9px;color:#e11d48;font-weight:800;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Full Name</div>
+          <div style="font-size:16px;font-weight:900;color:#881337">${formData.name}</div>
+        </div>
+        <div style="background:linear-gradient(135deg, #eff6ff, #dbeafe);border:1px solid #bfdbfe;border-radius:16px;padding:20px;box-shadow:0 4px 6px rgba(59,130,246,0.05)">
+          <div style="font-size:9px;color:#2563eb;font-weight:800;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Phone Number</div>
+          <div style="font-size:16px;font-weight:900;color:#1e3a8a">${formData.phone}</div>
+        </div>
+        <div style="background:linear-gradient(135deg, #f5f3ff, #ede9fe);border:1px solid #ddd6fe;border-radius:16px;padding:20px;box-shadow:0 4px 6px rgba(139,92,246,0.05)">
+          <div style="font-size:9px;color:#7c3aed;font-weight:800;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Email Address</div>
+          <div style="font-size:14px;font-weight:800;color:#4c1d95;word-break:break-all">${formData.email}</div>
+        </div>
+        ${formData.company ? `<div style="background:linear-gradient(135deg, #f0fdf4, #dcfce7);border:1px solid #bbf7d0;border-radius:16px;padding:20px;box-shadow:0 4px 6px rgba(34,197,94,0.05)"><div style="font-size:9px;color:#16a34a;font-weight:800;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Company</div><div style="font-size:15px;font-weight:900;color:#14532d">${formData.company}</div></div>` : ''}
+      </div>
+    </div>
+
+    <!-- Service Details Table -->
+    ${serviceRows.length > 0 ? `
+    <div style="margin-bottom:32px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <div style="width:6px;height:24px;background:linear-gradient(to bottom, #8b5cf6, #6d28d9);border-radius:3px"></div>
+        <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.25em;color:#0f172a">Shipment Details</span>
+      </div>
+      <div style="border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05)">
+        <table style="width:100%;border-collapse:collapse">
+          ${serviceRows.map((row, i) => `
+          <tr style="background:${i % 2 === 0 ? '#ffffff' : '#f8fafc'}">
+            <td style="padding:16px 20px;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.15em;border-bottom:1px solid #f1f5f9;width:45%">${row.label}</td>
+            <td style="padding:16px 20px;font-size:14px;font-weight:800;color:#0f172a;border-bottom:1px solid #f1f5f9;text-align:right">${row.value}</td>
+          </tr>`).join('')}
+        </table>
+      </div>
+    </div>` : ''}
+
+    <!-- Payment Info -->
+    <div style="background:linear-gradient(135deg, #ecfdf5, #d1fae5);border:1px solid #a7f3d0;border-radius:20px;padding:24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;box-shadow:0 10px 25px rgba(16,185,129,0.1)">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:6px">Token Amount Paid</div>
+        <div style="font-size:36px;font-weight:900;color:#064e3b;letter-spacing:-0.02em">₹1,000</div>
+        <div style="font-size:11px;font-weight:600;color:#10b981;margin-top:4px">Via Razorpay Secure · GST Included</div>
+      </div>
+      <div style="width:64px;height:64px;background:linear-gradient(135deg, #10b981, #047857);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px rgba(4,120,87,0.3)">
+        <svg width="32" height="32" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div style="background:linear-gradient(135deg, #fffbeb, #fef3c7);border:1px solid #fde68a;border-radius:20px;padding:24px;box-shadow:0 4px 12px rgba(245,158,11,0.05)">
+      <div style="font-size:11px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:16px;display:flex;align-items:center;gap:6px">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        What Happens Next
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:12px;align-items:center"><div style="min-width:28px;height:28px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;box-shadow:0 4px 8px rgba(217,119,6,0.3)">1</div><div style="font-size:14px;font-weight:600;color:#78350f">Our expert team will review your requirements.</div></div>
+        <div style="display:flex;gap:12px;align-items:center"><div style="min-width:28px;height:28px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;box-shadow:0 4px 8px rgba(217,119,6,0.3)">2</div><div style="font-size:14px;font-weight:600;color:#78350f">You will receive a call within 24 hours to finalize details.</div></div>
+        <div style="display:flex;gap:12px;align-items:center"><div style="min-width:28px;height:28px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;box-shadow:0 4px 8px rgba(217,119,6,0.3)">3</div><div style="font-size:14px;font-weight:600;color:#78350f">Full invoice and tracking information will be provided.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#020617;padding:24px 48px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:12px">
+        <img src="${logoUrl}" style="height:32px;width:auto;object-fit:contain;filter:brightness(0.8) grayscale(1)" />
+        <span style="color:rgba(255,255,255,0.3);font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase">Certified Logistics</span>
+    </div>
+    <div style="text-align:right">
+      <div style="color:rgba(255,255,255,0.7);font-size:11px;font-weight:600">www.paddlog.com</div>
+      <div style="color:rgba(255,255,255,0.3);font-size:9px;margin-top:4px;font-weight:500">Document generated automatically on ${dateStr}</div>
+    </div>
+  </div>
+</div>
+<script>window.onload = function() { setTimeout(() => window.print(), 500); }<\/script>
+</body></html>`;
+
+    const win = window.open('', '_blank');
+    if (win) { win.document.write(html); win.document.close(); }
   };
 
-  const handleSubmit = async () => {
+  const handlePayment = async () => {
     if (!validate()) return;
     setLoading(true);
 
+    try {
+      // For dummy, let's assume a fix amount of ₹1000
+      const amount = 1000;
+      const res = await createPaymentOrder(amount);
+
+      if (!res.success) {
+        throw new Error(res.message);
+      }
+
+      const options = {
+        key: res.key,
+        amount: res.amount,
+        currency: "INR",
+        name: "PADDLOG DG SOLUTIONS",
+        description: "Service Booking Payment",
+        order_id: res.orderId,
+        handler: async function (response: any) {
+          await completeBooking(response.razorpay_payment_id);
+        },
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        theme: {
+          color: "#e11d48",
+        },
+      };
+
+      const rzp1 = new (window as any).Razorpay(options);
+      rzp1.on('payment.failed', function (response: any) {
+        alert("Payment Failed: " + response.error.description);
+        setLoading(false);
+      });
+      rzp1.open();
+    } catch (err: any) {
+      alert("Payment initialization failed: " + err.message);
+      setLoading(false);
+    }
+  };
+
+  const completeBooking = async (paymentId: string) => {
     try {
       const { error: bookingErr } = await supabase.from('bookings').insert([{
         customer_name: formData.name,
         customer_email: formData.email,
         customer_phone: formData.phone,
         service_type: formData.serviceId,
-        service_details: formData,
-        status: 'pending'
+        service_details: { ...formData, payment_id: paymentId },
+        status: 'verified' // Mark verified after payment
       }]);
 
       if (bookingErr) throw bookingErr;
 
-      const emailRes = await fetch('https://wawnxegvuuveqaxtbwpi.supabase.co/functions/v1/send-contact-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indhd254ZWd2dXV2ZXFheHRid3BpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNDg5MjksImV4cCI6MjA4ODgyNDkyOX0.eYBK0zMHap0g1N0CHkfUDrU0jzolFwmbDzzECmV_KK0'
-        },
-        body: JSON.stringify({ record: formData })
-      });
-      console.log("Email Service Response:", await emailRes.json());
-
-
-      setStep(4);
+      setStep(5); // Show final success step
       generatePDF();
-
-    } catch (err: any) {
-      console.error("Booking Error:", err);
-      alert("Failed to confirm booking. Try again.");
+    } catch (err) {
+      alert("Failed to save booking. Please contact support with Payment ID: " + paymentId);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (step === 3) {
+      setStep(4); // Move to payment step
     }
   };
 
@@ -231,6 +370,7 @@ export default function BookServicePage() {
   return (
     <main className="min-h-screen bg-[#0a0f1e] font-body flex flex-col">
       <Navbar />
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       <div className="relative pt-28 pb-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0f1e] via-[#12172b] to-[#0a0f1e]" />
@@ -251,14 +391,15 @@ export default function BookServicePage() {
                 {step === 1 && <Step1Service key="1" selectedId={formData.serviceId} onSelect={(id: string) => updateForm("serviceId", id)} />}
                 {step === 2 && <Step2Dynamic key="2" formData={formData} updateForm={updateForm} errors={errors} service={selectedService} />}
                 {step === 3 && <Step3Review key="3" formData={formData} service={selectedService} />}
-                {step === 4 && <Step4Done key="4" downloadPdf={generatePDF} />}
+                {step === 4 && <StepPayment key="4" onPay={handlePayment} amount={1000} loading={loading} />}
+                {step === 5 && <Step4Done key="5" downloadPdf={generatePDF} />}
               </AnimatePresence>
 
-              {step < 4 && (
+              {step < 5 && (
                 <div className="mt-10 pt-8 border-t border-white/10 flex items-center justify-between">
-                  <button onClick={() => setStep(s => Math.max(1, s - 1))} className={cn("px-6 py-3 rounded-xl border border-white/20 text-white/70", step === 1 && "invisible")}>Back</button>
+                  <button onClick={() => setStep(s => Math.max(1, s - 1))} className={cn("px-6 py-3 rounded-xl border border-white/20 text-white/70", (step === 1 || step === 5) && "invisible")}>Back</button>
                   <button onClick={handleNext} disabled={loading} className="red-gradient text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2">
-                    {loading ? "Processing..." : step === 3 ? "Confirm Booking" : "Next Step"}
+                    {loading ? "Processing..." : step === 3 ? "Next: Payment" : step === 4 ? "Pay Now" : "Next Step"}
                     <ArrowRight size={18} />
                   </button>
                 </div>
@@ -276,9 +417,9 @@ export default function BookServicePage() {
 }
 
 function Stepper({ currentStep }: { currentStep: number }) {
-  const steps = ["Service", "Details", "Review", "Done"];
+  const steps = ["Service", "Details", "Review", "Payment", "Done"];
   return (
-    <div className="flex justify-between items-center max-w-md mx-auto mb-10">
+    <div className="flex justify-between items-center max-w-lg mx-auto mb-10">
       {steps.map((s, idx) => (
         <div key={s} className="flex flex-col items-center">
           <div className={cn("w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 mb-2 transition-colors", currentStep >= idx + 1 ? "bg-primary border-primary text-white" : "border-white/10 text-white/30")}>
@@ -372,19 +513,149 @@ function Step3Review({ formData, service }: any) {
   );
 }
 
+function StepPayment({ onPay, amount, loading }: any) {
+  const paymentMethods = [
+    { name: "UPI", icon: "🔵", desc: "GPay, PhonePe, Paytm" },
+    { name: "Cards", icon: "💳", desc: "Visa, Mastercard, RuPay" },
+    { name: "NetBanking", icon: "🏦", desc: "All major banks" },
+    { name: "Wallets", icon: "👛", desc: "Mobikwik, Freecharge" },
+  ];
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="relative inline-flex">
+          <div className="absolute inset-0 bg-rose-500/30 blur-2xl rounded-full scale-150" />
+          <div className="relative w-20 h-20 bg-gradient-to-br from-rose-500 to-red-700 rounded-2xl flex items-center justify-center mx-auto shadow-2xl shadow-rose-900/50">
+            <CreditCard size={36} className="text-white" />
+          </div>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-black text-white mt-5 tracking-tight">Complete Payment</h2>
+        <p className="text-slate-400 mt-2 text-sm">Secure token payment to confirm your booking</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Order Summary */}
+        <div className="space-y-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Order Summary</p>
+          <div className="bg-gradient-to-br from-white/8 to-white/3 border border-white/10 rounded-2xl p-5 space-y-4 backdrop-blur-md">
+            <div className="flex items-center gap-3 pb-4 border-b border-white/10">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shrink-0">
+                <Package size={18} className="text-white" />
+              </div>
+              <div>
+                <div className="text-white font-bold text-sm">Shipping & Logistics Service</div>
+                <div className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-0.5">Booking Token</div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400 text-sm">Token Amount</span>
+                <span className="text-white font-bold">₹{amount.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400 text-sm">Processing Fee</span>
+                <span className="text-emerald-400 font-bold text-sm">FREE</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400 text-sm">GST</span>
+                <span className="text-slate-400 text-sm">Included</span>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+              <span className="text-white font-black text-sm uppercase tracking-wider">Total Payable</span>
+              <div className="text-right">
+                <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-red-500">₹{amount.toLocaleString('en-IN')}</div>
+                <div className="text-[10px] text-slate-500 font-bold">ONE TIME TOKEN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment & CTA */}
+        <div className="space-y-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment Methods</p>
+          <div className="grid grid-cols-2 gap-2">
+            {paymentMethods.map((m) => (
+              <div key={m.name} className="bg-white/5 border border-white/10 rounded-xl p-3 hover:border-white/20 transition-all cursor-default">
+                <div className="text-xl mb-1">{m.icon}</div>
+                <div className="text-white font-bold text-xs">{m.name}</div>
+                <div className="text-slate-500 text-[9px] font-bold">{m.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="relative mt-2">
+            <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-600 blur-2xl opacity-40 rounded-2xl" />
+            <button
+              onClick={onPay}
+              disabled={loading}
+              className="relative w-full bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white py-5 rounded-2xl font-black text-base shadow-2xl shadow-red-900/40 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading
+                ? <><RefreshCcw size={20} className="animate-spin" /> Initializing Razorpay...</>
+                : <><ShieldCheck size={20} /> Pay ₹{amount.toLocaleString('en-IN')} Securely</>
+              }
+            </button>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="bg-white/3 border border-white/8 rounded-xl p-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              {["🔒 256-bit SSL", "✅ Razorpay", "🇮🇳 RBI Compliant", "⚡ Instant Confirm"].map(b => (
+                <span key={b} className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{b}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function Step4Done({ downloadPdf }: any) {
   return (
-    <div className="text-center py-10">
-      <div className="w-20 h-20 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
-      <h2 className="text-3xl font-bold text-white mb-2">Booking Confirmed!</h2>
-      <p className="text-slate-400 mt-6 max-w-sm mx-auto">Please download your booking summary. Our team will contact you shortly.</p>
-      
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
-        <button onClick={downloadPdf} className="bg-white text-black px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:scale-105 transition-transform w-full sm:w-auto justify-center">
-            <Download size={18} /> Download PDF Quote
-        </button>
+    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', damping: 20 }} className="text-center py-8">
+      {/* Icon */}
+      <div className="relative inline-flex mb-8">
+        <div className="absolute inset-0 bg-emerald-500/20 blur-3xl scale-150 rounded-full" />
+        <div className="relative w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-900/50">
+          <CheckCircle2 size={50} className="text-white" />
+        </div>
       </div>
-    </div>
+
+      <div className="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+        Payment Successful
+      </div>
+      <h2 className="text-3xl sm:text-4xl font-black text-white mb-3 tracking-tight">Booking Confirmed!</h2>
+      <p className="text-slate-400 max-w-sm mx-auto text-sm leading-relaxed">
+        Your payment was successful and booking is confirmed. Our team will reach out within <span className="text-white font-bold">24 hours</span>.
+      </p>
+
+      {/* Details */}
+      <div className="mt-8 grid grid-cols-3 gap-3 max-w-md mx-auto text-center">
+        {[
+          { emoji: "📞", label: "We'll Call You", sub: "Within 24 hrs" },
+          { emoji: "📄", label: "Quote Sent", sub: "Check email" },
+          { emoji: "🚚", label: "Logistics Ready", sub: "Team assigned" },
+        ].map(item => (
+          <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div className="text-2xl mb-2">{item.emoji}</div>
+            <div className="text-white font-bold text-xs">{item.label}</div>
+            <div className="text-slate-500 text-[10px] font-bold mt-0.5">{item.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={downloadPdf}
+        className="mt-8 inline-flex items-center gap-3 bg-gradient-to-r from-white to-slate-100 text-black px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-xl"
+      >
+        <Download size={18} /> Download Booking Confirmation PDF
+      </button>
+      <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-4">Paddlog DG Solutions · Certified Logistics Partner</p>
+    </motion.div>
   );
 }
 

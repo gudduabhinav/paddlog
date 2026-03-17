@@ -1,201 +1,119 @@
-# Paddlog DG Solutions Website – User Manual
+# Paddlog Logistics - Official User Manual
 
-Version: 1.0  
-Last updated: March 17, 2026
-
-![Paddlog Logo](../public/logo.png)
-
-## Who this guide is for
-
-This manual is written in simple English for:
-
-- Customers/visitors who want to explore services, book a service, or contact the team.
-- The internal team who manages leads and bookings in the Admin Dashboard (see the last section).
-
-## Quick navigation (website)
-
-### Top menu (Navbar)
-
-You can use the top menu to open:
-
-- Home
-- About
-- Services
-- Blog
-- Contact
-- Book Service (button)
-
-### Mobile navigation
-
-On small screens:
-
-- Tap the menu icon (☰) to open links.
-- Tap the close icon (✕) to close the menu.
-
-### Floating buttons (bottom-right)
-
-On most pages you will also see:
-
-- WhatsApp button: opens WhatsApp chat with the team.
-- Back-to-top button: appears after you scroll down; taps scroll you to the top.
-
-## Home page (/) – what you will see
-
-![Home visual](../public/logistics_scene.png)
-
-The Home page is a single long page with multiple sections. Common sections include:
-
-- Hero: main message + quick buttons (Book Now / Explore).
-- Services: service cards; each card opens a service detail page.
-- DG Classes: quick overview of the 9 classes of Dangerous Goods.
-- Process: the 5-step workflow (Inquiry → Delivery).
-- International Reach: a global map/network section.
-- Testimonials and FAQ.
-- Call-to-action: quick buttons to Book Service or Contact Experts.
-
-## International Reach (Global Network)
-
-![Global network visual](../public/global_network_landscape.png)
-
-This section highlights the global network and shows quick stats like Countries/Partners/Uplink.
-
-## Services
-
-### Services list (/services)
-
-Use this page to browse all services.
-
-- Scroll through the service cards.
-- Click **Book this service** to open the detailed page for that service.
-
-### Service detail pages (/services/<service>)
-
-Each service page typically includes:
-
-- Overview and detailed explanation.
-- Key capabilities (feature list).
-- Compliance/regulations notes (where applicable).
-- Buttons:
-  - **Book Service** → opens `/book`
-  - **Contact Experts** → opens `/contact`
-
-## Book a service (/book)
-
-The booking page is a step-by-step form. It helps you share the correct information for faster processing.
-
-### Step 1: Choose a service
-
-- Select the service type you need (example: DG Packing & DGD, Air Freight, Customs, etc.).
-
-### Step 2: Fill your details
-
-- Enter your name, email, and phone number (required).
-- Add shipment details as needed (origin, destination, weight, UN number, packing group, etc.).
-
-Tip: For Dangerous Goods shipments, keep your MSDS/SDS and UN number ready. Accurate details prevent delays and rejections.
-
-### Step 3: Review
-
-- Verify the details on the review screen.
-- Go back if you need to correct anything.
-
-### Step 4: Payment (Razorpay)
-
-- Complete the secure payment to confirm the booking.
-- If payment fails, try again or contact support and share the Payment ID shown by the gateway.
-
-### Step 5: Confirmation + PDF
-
-- After a successful payment, you will see a confirmation screen.
-- Use the **Download Booking Confirmation PDF** button to save a PDF for your records.
-
-Extra tools:
-
-- UN Lookup Hub: a small search panel that helps you find common UN numbers (quick reference).
-
-## Contact page (/contact)
-
-Use this page if you want a quote, expert advice, or support.
-
-### Send an inquiry (form)
-
-1. Fill your details (name, email, phone).
-2. Select a service type (optional, helps routing).
-3. Write a short message with your requirement.
-4. Tap **Transmit Inquiry**.
-
-If it is submitted successfully, you will see a success message like **Message Received!**
-
-### Quick support options
-
-Contact details may vary by department. If you are unsure, use the Contact page for the latest info.
-
-- WhatsApp: use the chat button on the page (or the floating WhatsApp icon).
-- Phone and email: shown on the Contact page and in the site footer.
-
-## Blog (/blog)
-
-The Blog page contains learning articles (example topics: packaging, regulations, logistics, safety).
-
-- Use category buttons to filter posts.
-- Click any post card to open the full article in an overlay.
-- Click outside the article (or press **Close**) to return to the list.
-
-## Urgent Callback popup (Exit-intent)
-
-Sometimes you may see a popup message like **“Wait! Need Urgent DG Services?”**
-
-Why it appears:
-
-- Desktop: when your cursor moves near the top (exit intent).
-- Mobile: when you scroll up quickly.
-- Also: it may auto-open after some time to help visitors request support.
-
-What to do:
-
-- Enter your name and phone number.
-- Tap **Request Fast Callback**.
-- Or close it using the **X** button.
-
-## Privacy and Terms
-
-- Privacy Policy: `/privacy`
-- Terms of Service: `/terms`
-
-## Troubleshooting (common issues)
-
-- Page not loading: refresh the page and check your internet connection.
-- Form not submitting: confirm all required fields are filled, then try again.
-- No response yet: use WhatsApp or call the support number shown on the Contact page.
-- Payment issues: try again or contact support with the Payment ID from the gateway.
+Welcome to the **Paddlog** digital infrastructure handbook. This comprehensive guide will walk you through the various sections of our web portal, including how to book shipments and how to seamlessly manage them using the internal Admin Portal.
 
 ---
 
-# Admin Dashboard (Internal)
+## 1. Homepage & Navigation
 
-This section is for the internal Paddlog team only.
+The homepage serves as the main gateway to our logistics network. It features a bold, intuitive design to guide clients immediately to the services they require.
 
-## Open the dashboard
+![Homepage - Main View](home.png)
 
-URL: `/admin`
+### Key Features of the Homepage:
+- **Upper Navigation Bar:** Quick links to "Services", "About Us", and "Resources" to help users easily discover what they need.
+- **Hero Call-to-Action:** A large "Book Shipment" button designed to drive immediate client conversion.
+- **WhatsApp Integration:** A hovering WhatsApp icon at the bottom right corner ensures instant communication between clients and support agents.
+- **Live Maps:** An interactive global connection map emphasizing global shipping capabilities.
 
-## Login
+---
 
-- Enter the Admin Access Key.
-- After login, the browser may remember the session on the same device.
+## 2. Our Services
 
-## Main tabs
+The Services page details everything that Paddlog provides, carefully segmented to reassure clients of our technical expertise—ranging from UN packaging to complex international freight.
 
-- Overview: quick stats and alerts.
-- Leads: messages from Contact form and the urgent callback popup.
-- Bookings: paid bookings from the Book Service flow.
-- Settings: section visibility (show/hide Home page sections).
+![Services Portfolio](services.png)
 
-## Leads & bookings actions
+### What Clients Can Find Here:
+- Detailed cards showing Air Freight, Ocean Cargo, and Special Dangerous Goods (DG) packaging definitions.
+- Highlights of security clearances and RBI/DGCA certifications to build profound trust.
+- Quick consultation forms below each specific service type.
 
-Common actions available in lists/details:
+---
 
-- View details (eye icon)
-- Export PDF (download icon)
-- Delete (trash icon)
-- Update status (Pending / Verified / Called / Completed) where available
+## 3. About Us
+
+Clients want to know who is behind the logistics operations. The About Us page covers the mission and historical reliability of Paddlog.
+
+![About Paddlog](about.png)
+
+### How to use this page:
+- Prospective buyers often read this before handing over high-value goods. Keep this section updated with your latest logistics numbers and company milestones.
+- Leadership and network partner logos emphasize Paddlog's legitimacy globally.
+
+---
+
+## 4. Fast Callback / Exit Intent Feature
+
+To maximize lead capturing, Paddlog includes an **Urgent DG Services** callback popup. This triggers intelligently when a user attempts to leave the website or waits for a duration without taking action.
+
+![Fast Callback Request Focus](exit-popup-real.png)
+
+### Features & Workflow:
+- **Instant Trigger:** Asks for full name and phone number.
+- **Fast Action Promise:** Reassures the client that our expert team will contact them within *5 minutes*.
+- **Direct to Database:** Any submission from this popup directly injects a new lead into the Admin Dashboard under the "Contact Form / Exit Popup" sources.
+
+---
+
+## 5. Booking a Shipment (For Clients)
+
+The core transaction engine. When a client clicks **Book Shipment**, they are directed to a highly secure and beautifully structured multi-step portal.
+
+![Booking Shipment Flow](book-shipment.png)
+
+### The Booking Flow Explained:
+- **Step 1: Service Selection:** Client chooses standard shipping vs. UN Certified specialized packaging.
+- **Step 2: Client Information:** Input of name, email, contact, and company details.
+- **Step 3: Cargo Details:** Origin, destination, exact weight, and classification.
+- **Step 4: Secure Payment:** Integration with a robust, glassmorphic payment portal powered securely by Razorpay.
+
+---
+
+## 6. Official PDF Booking Receipt
+
+When a client successfully completes their payment and their shipment is verified, the system generates a dynamic, highly-styled PDF receipt. This acts as a professional physical handover and confirmation document.
+
+![PDF Confirmation Output](pdf-output-real.png)
+
+### Key Specifications of the PDF Receipt:
+- **Client Information:** Logs the customer's Full Name, Phone Number, Email Address, and Company.
+- **Shipment Details:** Logs exact parameters such as "UN Rating" and "Packaging Type" required for chemical/dangerous goods.
+- **Token Payment Verification:** Bright green secure verification badge showing the exact token amount paid (inclusive of GST) via Razorpay.
+- **Gradient Aesthetic:** Features a vibrant, multi-layered color gradient with the Paddlog brand logo, and an auto-generated unique Reference Number (e.g., `PL-31665685`).
+- **Next Steps Pipeline:** Explains to the user exactly what will happen next (review, call within 24 hours, invoice sharing).
+
+---
+
+## 7. Admin Access Portal (Login)
+
+To efficiently manage all incoming inquiries and cargo, authorized personnel use the Paddlog Command Center. 
+
+![Admin Login Interface](admin-login.png)
+
+### Accessing the Portal:
+- **URL Route:** Navigate directly to `/admin` via the browser.
+- **Access Key required:** Ensure you possess the correct confidential password to enter. The system performs secure backend verification.
+  - **The current Master Password is:** `Paddlog@2024`
+
+---
+
+## 8. Admin Access Portal (Dashboard)
+
+The dashboard gives 360-degree visibility over operations.
+
+![Admin Dashboard In-Depth](admin-dashboard-real.png)
+
+### Working with the Dashboard Interface:
+- **Audio-Visual Alerts:** Immediate alert tones loop continuously when a new lead surfaces in real-time.
+- **Lead Engagement Tracking:** Shows exactly how many leads are "Unread" versus "Viewed".
+- **Real-Time Funnel (Bookings & Leads Pipeline):** Split view tracking the percentage (%) of leads that are *Pending*, *Verified*, *Called*, or *Completed*. Total shipments are separately summarized to easily measure conversions.
+- **Quick Status Switches:** You can click on any lead and quickly hit a status button to mark them completed or verified.
+- **Exporting Data:** A seamless direct export is available to push CSV reports whenever requested by higher management.
+
+---
+
+## Need Further Support?
+For technical maintenance, API updates, or modifying text contents on the site, refer directly to your designated infrastructure specialist.
+
+*Paddlog DG Solutions • Confidential Operations Manual*

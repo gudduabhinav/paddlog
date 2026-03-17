@@ -35,3 +35,7 @@ Import traces:
 ⚠ Fast Refresh had to perform a full reload due to a runtime error.
 ⚠ Fast Refresh had to perform a full reload due to a runtime error.
 ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+Razorpay Error: {
+  statusCode: 401,
+  error: { code: 'BAD_REQUEST_ERROR', description: 'Authentication failed' }
+}
