@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Globe2 } from "lucide-react";
 
@@ -13,6 +14,26 @@ const offices = [
 const regions = ["Europe", "USA", "Middle East", "Southeast Asia", "Africa", "Australia"];
 
 export function MapSection() {
+  const [isSmUp, setIsSmUp] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mql = window.matchMedia("(min-width: 640px)");
+    const onChange = () => setIsSmUp(mql.matches);
+
+    onChange();
+
+    if ("addEventListener" in mql) {
+      mql.addEventListener("change", onChange);
+      return () => mql.removeEventListener("change", onChange);
+    }
+
+    // Safari < 14 fallback
+    mql.addListener(onChange);
+    return () => mql.removeListener(onChange);
+  }, []);
+
   return (
     <section id="global" className="py-32 bg-[#040712] overflow-hidden relative font-roboto">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[#E53935]/5 blur-[150px] rounded-full pointer-events-none" />
@@ -42,12 +63,16 @@ export function MapSection() {
         {/* Plane 2 Takeoff - From Bottom Left to Top Right */}
         <FlyingPlane src="/plane-2.png" from={{ x: "-10%", y: "90%" }} to={{ x: "110%", y: "20%" }} duration={15} delay={4} size={6} flip={false} />
         
-        <FlyingPlane src="/plane-1.png" from={{ x: "50%", y: "15%" }} to={{ x: "110%", y: "60%" }} duration={14} delay={2} size={4.5} flip={true} />
-        
-        {/* Plane 2 Takeoff - From Center Bottom to Top Left */}
-        <FlyingPlane src="/plane-2.png" from={{ x: "40%", y: "100%" }} to={{ x: "-20%", y: "10%" }} duration={12} delay={8} size={5} flip={true} />
-        
-        <FlyingPlane src="/plane-1.png" from={{ x: "80%", y: "10%" }} to={{ x: "10%", y: "50%" }} duration={20} delay={10} size={3.5} flip={false} />
+        {isSmUp && (
+          <>
+            <FlyingPlane src="/plane-1.png" from={{ x: "50%", y: "15%" }} to={{ x: "110%", y: "60%" }} duration={14} delay={2} size={4.5} flip={true} />
+
+            {/* Plane 2 Takeoff - From Center Bottom to Top Left */}
+            <FlyingPlane src="/plane-2.png" from={{ x: "40%", y: "100%" }} to={{ x: "-20%", y: "10%" }} duration={12} delay={8} size={5} flip={true} />
+
+            <FlyingPlane src="/plane-1.png" from={{ x: "80%", y: "10%" }} to={{ x: "10%", y: "50%" }} duration={20} delay={10} size={3.5} flip={false} />
+          </>
+        )}
 
         {/* Pulsing City Hubs */}
         <Hub x="55%" y="38%" label="Hyderabad HQ" />
