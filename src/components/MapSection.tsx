@@ -24,14 +24,23 @@ export function MapSection() {
 
     onChange();
 
-    if ("addEventListener" in mql) {
-      mql.addEventListener("change", onChange);
-      return () => mql.removeEventListener("change", onChange);
+    const mqlEvents = mql as unknown as {
+      addEventListener?: (type: "change", listener: () => void) => void;
+      removeEventListener?: (type: "change", listener: () => void) => void;
+      addListener?: (listener: () => void) => void;
+      removeListener?: (listener: () => void) => void;
+    };
+
+    const addEventListener = mqlEvents.addEventListener;
+    const removeEventListener = mqlEvents.removeEventListener;
+    if (addEventListener && removeEventListener) {
+      addEventListener("change", onChange);
+      return () => removeEventListener("change", onChange);
     }
 
     // Safari < 14 fallback
-    mql.addListener(onChange);
-    return () => mql.removeListener(onChange);
+    mqlEvents.addListener?.(onChange);
+    return () => mqlEvents.removeListener?.(onChange);
   }, []);
 
   return (
