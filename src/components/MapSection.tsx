@@ -58,19 +58,19 @@ export function MapSection() {
         />
         
         {/* Animated Flying Planes - Mixture of plane-1 and plane-2 */}
-        <FlyingPlane src="/plane-1.png" from={{ x: "-10%", y: "45%" }} to={{ x: "110%", y: "35%" }} duration={16} delay={0} size={5} flip={true} />
+        <FlyingPlane src="/plane-1.png" from={{ x: "-10%", y: "45%" }} to={{ x: "110%", y: "35%" }} duration={isSmUp ? 16 : 10} delay={0} size={5} flip={true} />
         
         {/* Plane 2 Takeoff - From Bottom Left to Top Right */}
-        <FlyingPlane src="/plane-2.png" from={{ x: "-10%", y: "90%" }} to={{ x: "110%", y: "20%" }} duration={15} delay={4} size={6} flip={false} />
+        <FlyingPlane src="/plane-2.png" from={{ x: "-10%", y: "90%" }} to={{ x: "110%", y: "20%" }} duration={isSmUp ? 15 : 9} delay={4} size={6} flip={false} />
         
         {isSmUp && (
           <>
-            <FlyingPlane src="/plane-1.png" from={{ x: "50%", y: "15%" }} to={{ x: "110%", y: "60%" }} duration={14} delay={2} size={4.5} flip={true} />
+            <FlyingPlane src="/plane-1.png" from={{ x: "50%", y: "15%" }} to={{ x: "110%", y: "60%" }} duration={14} delay={2} size={4.5} flip={true} className="hidden sm:block" />
 
             {/* Plane 2 Takeoff - From Center Bottom to Top Left */}
-            <FlyingPlane src="/plane-2.png" from={{ x: "40%", y: "100%" }} to={{ x: "-20%", y: "10%" }} duration={12} delay={8} size={5} flip={true} />
+            <FlyingPlane src="/plane-2.png" from={{ x: "40%", y: "100%" }} to={{ x: "-20%", y: "10%" }} duration={12} delay={8} size={5} flip={true} className="hidden sm:block" />
 
-            <FlyingPlane src="/plane-1.png" from={{ x: "80%", y: "10%" }} to={{ x: "10%", y: "50%" }} duration={20} delay={10} size={3.5} flip={false} />
+            <FlyingPlane src="/plane-1.png" from={{ x: "80%", y: "10%" }} to={{ x: "10%", y: "50%" }} duration={20} delay={10} size={3.5} flip={false} className="hidden sm:block" />
           </>
         )}
 
@@ -133,12 +133,12 @@ function Hub({ x, y, label }: any) {
   );
 }
 
-function FlyingPlane({ src, from, to, duration, delay, size, flip }: any) {
+function FlyingPlane({ src, from, to, duration, delay, size, flip, className = "" }: any) {
   return (
     <motion.img
       src={src}
       alt="Plane"
-      className="absolute pointer-events-none z-10 filter brightness-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]"
+      className={`absolute pointer-events-none z-10 sm:filter sm:brightness-110 sm:drop-shadow-[0_0_8px_rgba(255,255,255,0.15)] ${className}`}
       style={{ width: `${size}rem`, scaleX: flip ? -1 : 1 }}
       initial={{ left: from.x, top: from.y, opacity: 0 }}
       animate={{ 
