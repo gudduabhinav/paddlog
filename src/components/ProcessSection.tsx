@@ -14,10 +14,10 @@ const steps = [
 
 export function ProcessSection() {
   return (
-    <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
+    <section className="py-24 bg-[radial-gradient(circle_at_top,rgba(239,68,68,0.08),transparent_28%),linear-gradient(180deg,#ffffff_0%,#f8fafc_55%,#eef4ff_100%)] text-slate-900 overflow-hidden relative border-y border-slate-200">
       {/* Background animation */}
       <motion.div
-        className="absolute top-10 right-10 text-white/[0.03]"
+        className="absolute top-10 right-10 text-slate-300/30"
         animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
       >
@@ -30,7 +30,7 @@ export function ProcessSection() {
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-white/10 text-white/70 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/10"
+            className="inline-flex items-center gap-2 bg-white text-slate-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-slate-200 shadow-sm"
           >
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             How It Works
@@ -48,7 +48,7 @@ export function ProcessSection() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-slate-400 max-w-xl mx-auto"
+            className="text-slate-500 max-w-xl mx-auto"
           >
             Five simple steps to ensure your dangerous goods reach their destination safely and on time.
           </motion.p>
@@ -56,7 +56,7 @@ export function ProcessSection() {
 
         <div className="relative">
           {/* Connecting Line (Desktop) */}
-          <div className="hidden lg:block absolute top-[60px] left-0 w-full h-0.5 bg-slate-800 z-0">
+          <div className="hidden lg:block absolute top-[60px] left-0 w-full h-0.5 bg-slate-200 z-0">
             <motion.div
               initial={{ width: 0 }}
               whileInView={{ width: "100%" }}
@@ -78,12 +78,12 @@ export function ProcessSection() {
                   transition={{ delay: index * 0.15, duration: 0.5 }}
                   className="flex flex-col items-center group"
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.15, rotate: 5 }}
-                    className={`w-[120px] h-[120px] bg-gradient-to-br ${step.gradient} rounded-3xl flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,0,0,0.3)] group-hover:shadow-[0_0_40px_rgba(239,68,68,0.3)] transition-shadow relative`}
+                <motion.div
+                  whileHover={{ scale: 1.15, rotate: 5 }}
+                  className={`w-[120px] h-[120px] bg-gradient-to-br ${step.gradient} rounded-3xl flex items-center justify-center mb-6 shadow-[0_18px_40px_rgba(148,163,184,0.24)] group-hover:shadow-[0_22px_48px_rgba(239,68,68,0.22)] transition-shadow relative`}
                   >
                     <Icon size={44} className="text-white" />
-                    <div className="absolute -top-2 -right-2 bg-white text-slate-900 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                    <div className="absolute -top-2 -right-2 bg-white text-slate-900 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-md border border-slate-200">
                       {index + 1}
                     </div>
                   </motion.div>
@@ -95,7 +95,7 @@ export function ProcessSection() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.15 + 0.3 }}
                   />
-                  <p className="text-slate-400 text-sm text-center px-2 leading-relaxed">
+                  <p className="text-slate-500 text-sm text-center px-2 leading-relaxed">
                     {step.desc}
                   </p>
                 </motion.div>

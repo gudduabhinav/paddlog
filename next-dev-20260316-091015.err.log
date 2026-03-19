@@ -39,3 +39,50 @@ Razorpay Error: {
   statusCode: 401,
   error: { code: 'BAD_REQUEST_ERROR', description: 'Authentication failed' }
 }
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: motion is not defined
+    at Footer (src\components\Footer.tsx:19:18)
+  17 |               <div className="relative p-1 rounded-2xl overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl transition-all duration-500 group-hover:scale-105">
+  18 |                 {/* Animated Outline */}
+> 19 |                 <motion.div 
+     |                  ^
+  20 |                   animate={{ rotate: 360 }}
+  21 |                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+  22 |                   className="absolute -inset-[150%] bg-conic-gradient-blue opacity-40 blur-md" {
+  digest: '717769634'
+}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: motion is not defined
+    at Footer (src\components\Footer.tsx:19:18)
+  17 |               <div className="relative p-1 rounded-2xl overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl transition-all duration-500 group-hover:scale-105">
+  18 |                 {/* Animated Outline */}
+> 19 |                 <motion.div 
+     |                  ^
+  20 |                   animate={{ rotate: 360 }}
+  21 |                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+  22 |                   className="absolute -inset-[150%] bg-conic-gradient-blue opacity-40 blur-md" {
+  digest: '4077867929'
+}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: motion is not defined
+    at Footer (src\components\Footer.tsx:19:18)
+  17 |               <div className="relative p-1 rounded-2xl overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl transition-all duration-500 group-hover:scale-105">
+  18 |                 {/* Animated Outline */}
+> 19 |                 <motion.div 
+     |                  ^
+  20 |                   animate={{ rotate: 360 }}
+  21 |                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+  22 |                   className="absolute -inset-[150%] bg-conic-gradient-blue opacity-40 blur-md" {
+  digest: '3547659977'
+}
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.

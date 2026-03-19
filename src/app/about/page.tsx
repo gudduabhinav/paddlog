@@ -3,31 +3,40 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
-import { Shield, Target, Users, MapPin } from "lucide-react";
+import { Shield, Target, Users, MapPin, Award, Package, Heart, Building } from "lucide-react";
 
 export default function About() {
   return (
     <main className="min-h-screen font-body">
       <Navbar />
 
-      {/* Hero - Premium Dark Section */}
-      <section className="relative pt-40 md:pt-48 pb-32 bg-[#040712] overflow-hidden">
+      {/* Hero - Premium Light Section */}
+      <section className="relative pt-40 md:pt-48 pb-32 bg-slate-50 overflow-hidden">
         {/* Background Accents */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/10 blur-[150px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-100/40 blur-[150px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="container mx-auto px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-block px-4 py-1.5 rounded-full bg-red-600/10 border border-red-600/20 text-red-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-8"
+            className="flex flex-col items-center mb-8"
           >
-            Since 2022
+            <div className="w-48 h-16 mb-4">
+              <img 
+                src="/paddlog-logo.png" 
+                alt="Paddlog Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="px-4 py-1.5 rounded-full bg-red-50 border border-red-100 text-red-500 text-[10px] font-bold uppercase tracking-[0.3em]">
+              Since 2022
+            </div>
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-6xl md:text-8xl font-bold mb-8 font-heading text-white tracking-tight"
+            className="text-6xl md:text-8xl font-bold mb-8 font-heading text-slate-900 tracking-tight"
           >
             Paddlog <span className="text-primary italic">DG Simplified</span>
           </motion.h1>
@@ -35,7 +44,7 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium"
+            className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium"
           >
             Experts in specialized dangerous goods logistics, ensuring safe, compliant,
             and efficient transport of high-stakes cargo worldwide.
@@ -77,24 +86,39 @@ export default function About() {
         </div>
       </section>
 
-      {/* Values */}
+      {/* Why Choose Us */}
       <section className="py-24">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold font-heading text-slate-900">
+              Why Choose <span className="text-primary italic">PADDLOG</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ValueCard
-              icon={<Shield className="text-primary" size={40} />}
-              title="Uncompromising Safety"
-              text="We adhere to the strictest international standards for dangerous goods handling."
+              icon={<Award className="text-primary" size={40} />}
+              title="Expertise & Experience"
+              text="Seasoned professionals with unparalleled knowledge in hazardous materials handling."
             />
             <ValueCard
-              icon={<Target className="text-secondary" size={40} />}
-              title="Global Compliance"
-              text="Our expertise ensures your cargo meets every regulatory requirement, anywhere in the world."
+              icon={<Shield className="text-secondary" size={40} />}
+              title="Safety & Compliance"
+              text="Unwavering commitment to international safety standards and strict regulatory compliance."
             />
             <ValueCard
-              icon={<Users className="text-accent" size={40} />}
-              title="Expert Team"
-              text="Our specialists are certified and trained in the latest DG logistics protocols."
+              icon={<Package className="text-accent" size={40} />}
+              title="Comprehensive Services"
+              text="End-to-end logistics solutions tailored for specialized DG transport and general cargo."
+            />
+            <ValueCard
+              icon={<Heart className="text-primary" size={40} />}
+              title="Customer-Centric Approach"
+              text="Dedicated to simplifying complex logistics with tailored solutions for our clients' success."
+            />
+            <ValueCard
+              icon={<Building className="text-secondary" size={40} />}
+              title="State-of-the-Art Facilities"
+              text="Advanced infrastructure outfitting our operational hubs for absolute efficiency."
             />
           </div>
         </div>
@@ -194,8 +218,29 @@ export default function About() {
         </div>
       </section>
 
+      {/* Management Team */}
+      <section className="py-24 bg-white border-b border-slate-100">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 mb-6">
+              Our <span className="text-primary italic">Management Team</span>
+            </h2>
+            <p className="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto">
+              At PADDLOG DG Solutions, our management team comprises seasoned professionals with extensive experience in the logistics and hazardous materials handling industry. Their visionary leadership and strategic insights have been instrumental in driving our growth and success.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <TeamCard name="Mohamed" email="mohamed@paddlog.com" />
+            <TeamCard name="Nishad Hassan" email="nishad@paddlog.com" />
+            <TeamCard name="Sreerag Sukumar" email="sreerag@paddlog.com" />
+            <TeamCard name="Manuja" email="accounts@paddlog.com" />
+          </div>
+        </div>
+      </section>
+
       {/* Locations */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
@@ -280,6 +325,18 @@ function ValueCard({ icon, title, text }: { icon: React.ReactNode; title: string
       <div className="mb-6">{icon}</div>
       <h3 className="text-2xl font-bold mb-4 font-heading">{title}</h3>
       <p className="text-slate-600 leading-relaxed text-lg">{text}</p>
+    </div>
+  );
+}
+
+function TeamCard({ name, email }: { name: string; email: string }) {
+  return (
+    <div className="bg-white p-8 rounded-[2rem] shadow-premium border border-slate-100 hover:shadow-red-glow transition-all duration-300 text-center flex flex-col items-center">
+      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6 shadow-sm overflow-hidden">
+        <Users size={28} />
+      </div>
+      <h3 className="text-xl font-bold text-slate-900 mb-2">{name}</h3>
+      <a href={`mailto:${email}`} className="text-primary text-sm hover:underline font-medium break-all">{email}</a>
     </div>
   );
 }

@@ -2,113 +2,89 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Package, FileText, Plane, Ship, ShieldCheck, Warehouse, ArrowRight } from "lucide-react";
+import { Package, FileText, Plane, Box, ShieldCheck, Warehouse, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 const services = [
   {
     title: "UN Certified Packaging",
     slug: "un-certified-packaging",
-    desc: "Supply of UN certified boxes, drums, IBC tanks, hazard labels, and passive boxes for safe transport.",
+    desc: "Supply of UN certified boxes, drums, IBC tanks, and hazard labels for compliant transport.",
     icon: Package,
-    gradient: "from-red-500 to-rose-600",
-    bgGlow: "bg-red-500/10",
+    image: "/un-certified-packaging-dg.png"
   },
   {
     title: "DG Packing & DGD",
     slug: "dg-packing-dgd",
     desc: "Expert packing and DGD preparation ensuring 100% compliance with IATA and IMDG regulations.",
     icon: FileText,
-    gradient: "from-orange-500 to-red-500",
-    bgGlow: "bg-orange-500/10",
+    image: "/dg-hero-new.png"
   },
   {
     title: "Freight Forwarding",
     slug: "freight-forwarding",
-    desc: "Global Air and Sea freight for Hazardous, General, Temperature-controlled, and Critical shipments.",
+    desc: "Global Air & Sea transportation for Hazardous, General, and Critical shipments.",
     icon: Plane,
-    gradient: "from-blue-500 to-cyan-500",
-    bgGlow: "bg-blue-500/10",
+    image: "/dg-air-new.png"
   },
   {
-    title: "Technical Packing",
-    slug: "technical-packing",
-    desc: "Specialized high-quality technical packing for Aeroparts and sensitive industrial equipment.",
-    icon: Ship,
-    gradient: "from-indigo-500 to-blue-600",
-    bgGlow: "bg-indigo-500/10",
+    title: "Aeroparts & Special Packing",
+    slug: "aeroparts-packing",
+    desc: "Precision packing and verified handling for aviation components and technical equipment.",
+    icon: Box,
+    image: "/dg-sea-new.png"
   },
   {
     title: "Customs Brokerage",
     slug: "customs-brokerage",
-    desc: "Seamless customs clearance for hazardous goods through deep regulatory expertise.",
+    desc: "Seamless customs clearance and regulatory expertise for hazardous and specialized goods.",
     icon: ShieldCheck,
-    gradient: "from-emerald-500 to-teal-500",
-    bgGlow: "bg-emerald-500/10",
+    image: "/dg-customs-new.png"
   },
   {
-    title: "Temperature Controlled",
-    slug: "temperature-controlled",
-    desc: "End-to-end cold chain solutions for sensitive biological and chemical materials.",
+    title: "Warehousing & Storage",
+    slug: "warehousing-storage",
+    desc: "Secure facilities with 24/7 security and climate control for sensitive materials and cargo.",
     icon: Warehouse,
-    gradient: "from-amber-500 to-orange-500",
-    bgGlow: "bg-amber-500/10",
+    image: "/logistics_scene.png"
   },
 ];
 
 export function Services() {
   return (
-    <section id="services" className="py-24 bg-slate-50 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <motion.div
-        className="absolute -right-32 top-10 w-80 h-80 rounded-full bg-red-100/40 blur-3xl"
-        animate={{ scale: [1, 1.15, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute -left-20 bottom-20 w-60 h-60 rounded-full bg-blue-100/30 blur-3xl"
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-      />
-
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
+    <section id="services" className="py-24 bg-[#f8fafc] relative overflow-hidden">
+      <div className="container mx-auto px-6 text-center mb-20">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-red-50 text-red-500 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-red-100"
+            className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8"
           >
-            <span className="h-2 w-2 rounded-full bg-red-500" />
-            Our Expertise
+            Specialized Capabilities
           </motion.div>
-
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-4"
+            className="text-5xl md:text-7xl font-black mb-6 text-slate-900 tracking-tight"
           >
-            Our <span className="text-primary italic">Specialized</span> Services
+            Hazardous <span className="text-primary italic">Logistics</span> Solutions
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-slate-600 max-w-2xl mx-auto text-lg"
+            className="text-slate-500 max-w-2xl mx-auto text-xl leading-relaxed font-bold"
           >
-            We provide end-to-end solutions for the most complex logistics challenges,
-            prioritizing safety and compliance at every step.
+            UN-certified logistics infrastructure designed for absolute compliance and safety.
           </motion.p>
-        </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
-            <ServiceCard key={index} service={service} index={index} />
-          ))}
-        </div>
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {services.map((service, index) => (
+          <ServiceCard key={index} service={service} index={index} />
+        ))}
       </div>
     </section>
   );
@@ -116,40 +92,36 @@ export function Services() {
 
 function ServiceCard({ service, index }: { service: any; index: number }) {
   const Icon = service.icon;
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-      whileHover={{ y: -8 }}
-      className="bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-100 relative overflow-hidden"
+      className="bg-white rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 group border border-slate-200 overflow-hidden flex flex-col"
     >
-      {/* Hover glow */}
-      <div className={cn("absolute -top-20 -right-20 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl", service.bgGlow)} />
-
-      <div className="relative z-10">
-        <motion.div
-          className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br text-white shadow-md", service.gradient)}
-          whileHover={{ scale: 1.15, rotate: 5 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <Icon size={28} />
-        </motion.div>
-        <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
-          {service.title}
-        </h3>
-        <p className="text-slate-600 mb-6 leading-relaxed text-sm">
-          {service.desc}
-        </p>
+      {service.image && (
+        <div className="h-52 overflow-hidden relative">
+          <img src={service.image} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-60" />
+          <div className="absolute bottom-4 left-6"><div className="text-[9px] font-black uppercase text-white tracking-widest bg-primary px-3 py-1 rounded-full shadow-lg">Verified</div></div>
+        </div>
+      )}
+      <div className="p-8 flex-grow">
+        <div className="flex justify-between items-start mb-6">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-900 text-white shadow-lg group-hover:bg-primary transition-colors">
+            <Icon size={24} />
+          </div>
+          <ArrowRight size={20} className="text-slate-200 group-hover:text-primary transition-colors" />
+        </div>
+        <h3 className="text-2xl font-black mb-3 text-slate-900 tracking-tight group-hover:text-primary transition-colors">{service.title}</h3>
+        <p className="text-slate-500 mb-8 leading-relaxed text-sm font-bold">{service.desc}</p>
         <Link
-          href={`/services/${service.slug}`}
-          prefetch
-          className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 group-hover:text-primary transition-colors"
+          href={`/book?service=${service.slug}`}
+          className="group/link inline-flex items-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-5 py-3 text-[10px] font-black uppercase tracking-[0.22em] text-white shadow-[0_16px_35px_-20px_rgba(15,23,42,0.85)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:shadow-[0_20px_45px_-24px_rgba(239,68,68,0.75)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         >
-          <span>Book this service</span>
-          <ArrowRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
+          <span>Book Solution</span>
+          <ArrowRight size={14} className="transition-transform duration-300 group-hover/link:translate-x-1" />
         </Link>
       </div>
     </motion.div>
