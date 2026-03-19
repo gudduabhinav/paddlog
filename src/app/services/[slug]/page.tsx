@@ -202,19 +202,19 @@ export default function ServicePage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
-                className="bg-slate-900 text-white p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden"
+                className="bg-white border border-slate-200 p-12 rounded-[3.5rem] shadow-premium relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 p-8 opacity-10">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-primary">
                   <AlertTriangle size={150} />
                 </div>
                 <div className="relative z-10">
                   <h3 className="text-3xl font-bold mb-6 font-heading text-primary">Compliance First</h3>
-                  <p className="text-slate-400 mb-8 text-lg">
+                  <p className="text-slate-500 mb-8 text-lg font-medium">
                     We strictly adhere to international safety standards to ensure your cargo is handled without risk or regulatory hurdles.
                   </p>
                   <div className="flex flex-wrap gap-3">
                     {data.regulations.map((reg: string, i: number) => (
-                      <span key={i} className="bg-white/10 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-tight">
+                      <span key={i} className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-tight text-slate-900">
                         {reg}
                       </span>
                     ))}
@@ -247,8 +247,8 @@ export default function ServicePage() {
             <h2 className="text-4xl font-bold mb-6 font-heading">Ready to ship?</h2>
             <p className="text-slate-500 text-xl mb-12">Get an expert consultation and book your {data.title.toLowerCase()} service today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Link href="/book" prefetch className="red-gradient text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-premium text-center">Book Service</Link>
-              <Link href="/contact" prefetch className="bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-premium text-center">Contact Experts</Link>
+              <Link href="/book" prefetch className="red-gradient text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-premium text-center hover:shadow-red-glow transition-all">Book Service</Link>
+              <Link href="/contact" prefetch className="bg-white border border-slate-200 text-slate-900 px-10 py-5 rounded-2xl font-bold text-xl shadow-sm text-center hover:bg-slate-50 transition-all">Contact Experts</Link>
             </div>
           </div>
         </div>

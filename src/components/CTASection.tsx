@@ -10,96 +10,90 @@ export function CTASection() {
     <section className="py-24 bg-white">
       <div className="container mx-auto px-6">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="blue-gradient rounded-[4rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl"
+          transition={{ duration: 0.8 }}
+          className="relative overflow-hidden rounded-[4rem] group shadow-2xl"
         >
-          {/* Animated Background effects */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full" />
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-accent/10 blur-[100px] rounded-full" />
-
-          {/* Floating icons */}
-          <motion.div
-            className="absolute top-8 left-10 text-white/10"
-            animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Plane size={80} />
-          </motion.div>
-          <motion.div
-            className="absolute bottom-12 right-14 text-white/10"
-            animate={{ y: [0, -10, 0], rotate: [0, -5, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          >
-            <Shield size={60} />
-          </motion.div>
-          <motion.div
-            className="absolute top-14 right-20 text-white/10"
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-          >
-            <Globe2 size={50} />
-          </motion.div>
-
-          <div className="relative z-10">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight"
-            >
-              Need <span className="text-primary italic">Safe</span> Dangerous Goods Shipping?
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-white/70 text-xl max-w-2xl mx-auto mb-12"
-            >
-              Our experts are ready to handle your most challenging logistics requirements.
-              Get a compliant quote within 24 hours.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-6"
-            >
-              <Link href="/book" prefetch>
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(224,36,36,0.4)" }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative overflow-hidden red-gradient text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl flex items-center space-x-3 w-full sm:w-auto justify-center"
-                >
-                  <span className="relative z-10">Book Service</span>
-                  <motion.div
-                    className="relative z-10"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <ArrowRight size={24} />
-                  </motion.div>
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
-                </motion.button>
-              </Link>
-              <Link href="/contact" prefetch>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-10 py-5 rounded-2xl font-bold text-xl hover:bg-white/20 transition-all flex items-center space-x-3 w-full sm:w-auto justify-center"
-                >
-                  <MessageSquare size={24} />
-                  <span>Contact Our Experts</span>
-                </motion.button>
-              </Link>
-            </motion.div>
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+             <img 
+               src="/dg-sea-new.png" 
+               alt="Global Sea Freight" 
+               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[15s] ease-linear"
+             />
+             <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/70" />
           </div>
+
+          <div className="relative z-10 px-12 md:px-24 py-20 text-center md:text-left">
+            <div className="max-w-4xl">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md border border-primary/30 text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-8 shadow-xl"
+              >
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                Specialized Handling
+              </motion.div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1] tracking-tight"
+              >
+                Need <span className="text-primary italic">Expert</span> <br />
+                DG Shipping Solutions?
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="text-white/70 text-xl max-w-2xl mb-12 font-medium leading-relaxed"
+              >
+                Our certified specialist team is ready to handle your most challenging 
+                logistics requirements. Get a fully compliant quote within 2 Hours.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="flex flex-col sm:flex-row items-center gap-8"
+              >
+                <Link href="/book" prefetch>
+                  <motion.button
+                    whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(225,29,72,0.4)" }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group relative overflow-hidden red-gradient text-white px-12 py-5 rounded-3xl font-black text-xl shadow-2xl flex items-center space-x-3 w-full sm:w-auto justify-center"
+                  >
+                    <span>Book Service Now</span>
+                    <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </Link>
+                <Link href="/contact" prefetch>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-12 py-5 rounded-3xl font-black text-xl transition-all flex items-center space-x-3 w-full sm:w-auto justify-center hover:bg-white/20"
+                  >
+                    <MessageSquare size={24} className="text-primary" />
+                    <span>Speak to Specialists</span>
+                  </motion.button>
+                </Link>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Decorative Corner element */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[120px] rounded-full opacity-50 pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500/20 blur-[130px] rounded-full opacity-30 pointer-events-none" />
         </motion.div>
       </div>
     </section>

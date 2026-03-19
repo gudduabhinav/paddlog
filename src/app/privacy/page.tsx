@@ -49,7 +49,7 @@ export default function PrivacyPolicy() {
             <p className="mb-4">
               If you have any questions about this Privacy Policy, please contact us at: <br />
               <strong>Email:</strong> sales@paddlog.com <br />
-              <strong>Phone:</strong> +91 7386107071
+              <strong>Phone:</strong> +91 7386107071 / +91 7386444710
             </p>
           </section>
         </div>

@@ -42,7 +42,7 @@ export function Testimonials() {
   const prev = () => setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
   return (
-    <section className="py-24 bg-slate-50 relative overflow-hidden">
+    <section id="testimonials" className="py-24 bg-slate-50 relative overflow-hidden">
       {/* Animated background quote */}
       <motion.div
         className="absolute top-0 right-0 p-20 opacity-[0.03]"

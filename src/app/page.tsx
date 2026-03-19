@@ -6,12 +6,11 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { ClientMarquee } from "@/components/ClientMarquee";
 import { Services } from "@/components/Services";
-import { DGClassesVisualizer } from "@/components/DGClassesVisualizer";
+import { DangerousGoods } from "@/components/DangerousGoods";
 import { WhyChoose } from "@/components/WhyChoose";
 import { ProcessSection } from "@/components/ProcessSection";
 import { MapSection } from "@/components/MapSection";
 import { Testimonials } from "@/components/Testimonials";
-import { FAQSection } from "@/components/FAQSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 
@@ -67,12 +66,11 @@ export default function Home() {
       {isVisible('hero') && <Hero />}
       {isVisible('marquee') && <ClientMarquee />}
       {isVisible('services') && <Services />}
-      {isVisible('dg_visualizer') && <DGClassesVisualizer />}
+      {isVisible('dg_classes') && <DangerousGoods />}
       {isVisible('why_choose') && <WhyChoose />}
       {isVisible('process') && <ProcessSection />}
       {isVisible('map') && <MapSection />}
       {isVisible('testimonials') && <Testimonials />}
-      {isVisible('faq') && <FAQSection />}
       {isVisible('cta') && <CTASection />}
       <Footer />
     </main>
