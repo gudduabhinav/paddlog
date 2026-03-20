@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export function CTASection() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-12 bg-white">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -45,7 +45,7 @@ export function CTASection() {
                 transition={{ delay: 0.1 }}
                 className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1] tracking-tight"
               >
-                Need <span className="text-primary italic">Expert</span> <br />
+                Need <span className="text-primary">Expert</span> <br />
                 DG Shipping Solutions?
               </motion.h2>
 

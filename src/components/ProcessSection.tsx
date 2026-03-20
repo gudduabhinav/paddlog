@@ -41,7 +41,7 @@ export function ProcessSection() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
-            Our <span className="text-primary italic">Seamless</span> Process
+            Our <span className="text-primary">Seamless</span> Process
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}

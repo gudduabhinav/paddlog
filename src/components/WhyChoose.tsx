@@ -69,7 +69,7 @@ export function WhyChoose() {
 
                 <h2 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight text-slate-900">
                   Trust the Leaders in <br />
-                  <span className="text-primary italic">Dangerous Goods</span>
+                  <span className="text-primary">Dangerous Goods</span>
                 </h2>
                 
                 <p className="text-xl text-slate-500 leading-relaxed font-medium max-w-lg">
@@ -84,7 +84,7 @@ export function WhyChoose() {
                    className="w-full h-[400px] object-cover group-hover:scale-110 transition-transform duration-1000"
                  />
                  <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                    <div className="text-white font-black text-xl mb-1 italic tracking-tight">Rapid Air Link</div>
+                    <div className="text-white font-black text-xl mb-1 tracking-tight">Rapid Air Link</div>
                     <div className="text-white/70 text-sm font-bold">24-hour HAZMAT escalation available.</div>
                  </div>
               </div>

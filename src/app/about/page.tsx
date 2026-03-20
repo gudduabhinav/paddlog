@@ -7,11 +7,11 @@ import { Shield, Target, Users, MapPin, Award, Package, Heart, Building } from "
 
 export default function About() {
   return (
-    <main className="min-h-screen font-body">
+    <main className="min-h-screen font-body bg-slate-50/30">
       <Navbar />
 
       {/* Hero - Premium Light Section */}
-      <section className="relative pt-40 md:pt-48 pb-32 bg-slate-50 overflow-hidden">
+      <section className="relative pt-40 md:pt-48 pb-32 bg-white overflow-hidden">
         {/* Background Accents */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-100/40 blur-[150px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
@@ -38,7 +38,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl md:text-8xl font-bold mb-8 font-heading text-slate-900 tracking-tight"
           >
-            Paddlog <span className="text-primary italic">DG Simplified</span>
+            Paddlog <span className="text-primary">DG Simplified</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -53,10 +53,10 @@ export default function About() {
       </section>
 
       {/* Stats/Intro Section */}
-      <section className="py-24 bg-white border-y border-slate-100">
+      <section className="py-24 bg-slate-50 border-y border-slate-100">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-slate-900 mb-6 font-heading">Our Origin Story</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-6 font-heading uppercase tracking-widest">Our Origin Story</h2>
             <p className="text-lg text-slate-600 leading-relaxed font-body">
               Founded in Hyderabad, PADDLOG DG Solutions has quickly established itself as a pioneer
               in hazardous materials handling. We started with a simple belief: that complex logistics
@@ -70,14 +70,14 @@ export default function About() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="p-10 rounded-[3rem] bg-primary/5 border border-primary/10">
-            <h2 className="text-3xl font-bold mb-4 font-heading text-primary">Our Mission</h2>
+            <h2 className="text-3xl font-bold mb-4 font-heading text-primary uppercase tracking-wider">Our Mission</h2>
             <p className="text-lg text-slate-700">
               To provide safe, efficient, and cost-effective logistics solutions for hazardous materials
               and general cargo, ensuring compliance and reliability at every step.
             </p>
           </div>
           <div className="p-10 rounded-[3rem] bg-secondary/5 border border-secondary/10">
-            <h2 className="text-3xl font-bold mb-4 font-heading text-secondary">Our Vision</h2>
+            <h2 className="text-3xl font-bold mb-4 font-heading text-secondary uppercase tracking-wider">Our Vision</h2>
             <p className="text-lg text-slate-700">
               To be the global leader in dangerous goods logistics, recognized for our commitment
               to safety, innovation, and customer satisfaction.
@@ -90,8 +90,8 @@ export default function About() {
       <section className="py-24">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold font-heading text-slate-900">
-              Why Choose <span className="text-primary italic">PADDLOG</span>
+            <h2 className="text-3xl md:text-5xl font-bold font-heading text-slate-900 uppercase">
+              Why Choose <span className="text-primary">PADDLOG</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -125,12 +125,13 @@ export default function About() {
       </section>
 
       {/* Journey */}
-      <section className="py-24 bg-slate-50">
+      <section className="py-24 bg-slate-100/50">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
+            <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 uppercase tracking-tight">
               Our <span className="text-primary">Journey</span>
             </h2>
+            <p className="text-slate-500 mt-4 font-bold uppercase tracking-[0.2em] text-xs">Rapid Expansion Across India</p>
           </div>
 
           <div className="relative border-l md:border-l-0 md:border-transparent ml-4 md:ml-0">
@@ -172,8 +173,8 @@ export default function About() {
               <div className="w-full pl-8 md:w-1/2 md:pl-8 text-left">
                 <TimelineCard
                   year="2023"
-                  title="Expanded to Mumbai"
-                  desc="Opened Mumbai branch to serve western India's pharmaceutical and chemical industries."
+                  title="Expanded to Bangalore"
+                  desc="Rapidly scaled operations to serve Bangalore's thriving biotech and tech corridors."
                   direction="right"
                 />
               </div>
@@ -184,8 +185,8 @@ export default function About() {
               <div className="hidden md:block w-1/2 pr-8 text-right">
                 <TimelineCard
                   year="2024"
-                  title="Chennai & Bangalore"
-                  desc="Extended our network to South India with offices in Chennai and Bangalore."
+                  title="Mumbai & Chennai"
+                  desc="Strengthened our West and South presence with robust hubs in Mumbai and Chennai."
                   direction="left"
                 />
               </div>
@@ -193,8 +194,8 @@ export default function About() {
               <div className="md:hidden w-full pl-8">
                 <TimelineCard
                   year="2024"
-                  title="Chennai & Bangalore"
-                  desc="Extended our network to South India with offices in Chennai and Bangalore."
+                  title="Mumbai & Chennai"
+                  desc="Strengthened our West and South presence with robust hubs in Mumbai and Chennai."
                   direction="right"
                 />
               </div>
@@ -208,8 +209,8 @@ export default function About() {
               <div className="w-full pl-8 md:w-1/2 md:pl-8 text-left">
                 <TimelineCard
                   year="2025"
-                  title="500+ Clients"
-                  desc="Crossed 500 active clients and 10,000+ successful hazardous shipments across India."
+                  title="Entry into Gujarat"
+                  desc="Now serving Gujarat's industrial belt, marking our fifth major strategic expansion."
                   direction="right"
                 />
               </div>
@@ -218,56 +219,41 @@ export default function About() {
         </div>
       </section>
 
-      {/* Management Team */}
-      <section className="py-24 bg-white border-b border-slate-100">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 mb-6">
-              Our <span className="text-primary italic">Management Team</span>
-            </h2>
-            <p className="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto">
-              At PADDLOG DG Solutions, our management team comprises seasoned professionals with extensive experience in the logistics and hazardous materials handling industry. Their visionary leadership and strategic insights have been instrumental in driving our growth and success.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <TeamCard name="Mohamed" email="mohamed@paddlog.com" />
-            <TeamCard name="Nishad Hassan" email="nishad@paddlog.com" />
-            <TeamCard name="Sreerag Sukumar" email="sreerag@paddlog.com" />
-            <TeamCard name="Manuja" email="accounts@paddlog.com" />
-          </div>
-        </div>
-      </section>
-
       {/* Locations */}
-      <section className="py-24 bg-slate-50">
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900">
-              Our <span className="text-primary italic">Locations</span>
+            <h2 className="text-4xl md:text-5xl font-bold font-heading text-slate-900 uppercase">
+              Our <span className="text-primary">Locations</span>
             </h2>
+            <p className="text-slate-500 mt-4 font-bold uppercase tracking-[0.2em] text-xs">Strategically Positioned to Serve You Better</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-4 md:px-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-0">
             <LocationCard
               city="Hyderabad"
               tag="Head Office"
-              desc="Our headquarters — managing operations across Telangana and Andhra Pradesh."
-            />
-            <LocationCard
-              city="Mumbai"
-              tag="Branch Office"
-              desc="Serving Maharashtra's pharmaceutical and chemical export hubs."
-            />
-            <LocationCard
-              city="Chennai"
-              tag="Branch Office"
-              desc="Covering Tamil Nadu's industrial corridors and port operations."
+              desc="Global control center managing pan-India operations and strategic directions."
             />
             <LocationCard
               city="Bangalore"
               tag="Branch Office"
-              desc="Supporting Karnataka's tech and biotech industry logistics needs."
+              desc="Strategic hub for biotech, aviation parts, and high-tech equipment logistics."
+            />
+            <LocationCard
+              city="Mumbai"
+              tag="Branch Office"
+              desc="Key gateway for western India's pharmaceutical and chemical export industries."
+            />
+            <LocationCard
+              city="Chennai"
+              tag="Branch Office"
+              desc="Specialized handling for South India's industrial and port-centric cargo."
+            />
+             <LocationCard
+              city="Gujarat"
+              tag="Branch Office"
+              desc="Dedicated support for India's largest manufacturing and industrial hub."
             />
           </div>
         </div>
@@ -312,9 +298,9 @@ function LocationCard({ city, tag, desc }: { city: string; tag: string; desc: st
       <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
         <MapPin size={24} />
       </div>
-      <h3 className="text-2xl font-bold text-slate-900 mb-2">{city}</h3>
-      <p className="text-primary font-semibold text-sm mb-4">{tag}</p>
-      <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
+      <h3 className="text-2xl font-bold text-slate-900 mb-2 uppercase tracking-tighter">{city}</h3>
+      <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em] mb-4">{tag}</p>
+      <p className="text-slate-500 text-sm leading-relaxed font-medium">{desc}</p>
     </div>
   );
 }
@@ -323,20 +309,8 @@ function ValueCard({ icon, title, text }: { icon: React.ReactNode; title: string
   return (
     <div className="p-10 rounded-[3rem] bg-white shadow-premium border border-slate-100 hover:shadow-red-glow transition-all duration-300">
       <div className="mb-6">{icon}</div>
-      <h3 className="text-2xl font-bold mb-4 font-heading">{title}</h3>
+      <h3 className="text-2xl font-bold mb-4 font-heading uppercase tracking-tight">{title}</h3>
       <p className="text-slate-600 leading-relaxed text-lg">{text}</p>
-    </div>
-  );
-}
-
-function TeamCard({ name, email }: { name: string; email: string }) {
-  return (
-    <div className="bg-white p-8 rounded-[2rem] shadow-premium border border-slate-100 hover:shadow-red-glow transition-all duration-300 text-center flex flex-col items-center">
-      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6 shadow-sm overflow-hidden">
-        <Users size={28} />
-      </div>
-      <h3 className="text-xl font-bold text-slate-900 mb-2">{name}</h3>
-      <a href={`mailto:${email}`} className="text-primary text-sm hover:underline font-medium break-all">{email}</a>
     </div>
   );
 }

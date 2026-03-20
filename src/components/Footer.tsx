@@ -8,13 +8,13 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-50 text-slate-600 pt-20 pb-10 border-t border-slate-200">
+    <footer className="bg-slate-50 text-slate-600 pt-8 pb-4 border-t border-slate-200">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-6">
           {/* Company Info */}
-          <div className="space-y-1">
-            <Link href="/" className="inline-flex items-center group mb-4">
-              <div className="flex items-center justify-center h-16 md:h-18 w-auto overflow-hidden bg-transparent transition-transform duration-300 group-hover:scale-[1.03]">
+          <div className="space-y-4">
+            <Link href="/" className="inline-flex items-center group mb-2">
+              <div className="flex items-center justify-center h-12 w-auto overflow-hidden bg-transparent transition-transform duration-300 group-hover:scale-[1.03]">
                 <img
                   src="/paddlog-logo.png"
                   alt="Paddlog Logo"
@@ -22,7 +22,7 @@ export function Footer() {
                 />
               </div>
             </Link>
-            <p className="text-slate-500 leading-relaxed -mt-2 uppercase text-[10px] font-bold tracking-tight">
+            <p className="text-slate-500 leading-relaxed text-sm font-medium pr-4">
               Hyderabad born, globally focused. Experts in specialized dangerous goods logistics,
               ensuring safe, compliant, and efficient transport of high-stakes cargo worldwide.
             </p>
@@ -36,7 +36,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-slate-900 font-black text-lg mb-6 uppercase tracking-wider">Services</h4>
+            <h4 className="text-slate-900 font-bold text-lg mb-8 tracking-tight">Services</h4>
             <ul className="space-y-4">
               <FooterLink href="/services/un-certified-packaging" text="UN Certified Packaging" />
               <FooterLink href="/services/dg-packing-dgd" text="DG Packing & DGD" />
@@ -48,33 +48,47 @@ export function Footer() {
 
           {/* More Links */}
           <div>
-            <h4 className="text-slate-900 font-black text-lg mb-6 uppercase tracking-wider">Company</h4>
+            <h4 className="text-slate-900 font-bold text-lg mb-8 tracking-tight">Global Reach</h4>
             <ul className="space-y-4">
-              <FooterLink href="/about" text="About Us" />
-              <FooterLink href="/support" text="24/7 Support" />
-              <FooterLink href="/contact" text="Contact Experts" />
-              <FooterLink href="/blog" text="Blog" />
-              <FooterLink href="#" text="Privacy Policy" />
+               <li className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Head Office</li>
+               <li className="text-sm font-semibold text-slate-800 -mt-3">Hyderabad (HQ)</li>
+               
+               <li className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-2">Branches</li>
+               <li className="text-sm font-semibold text-slate-600 -mt-3">Bangalore • Mumbai • Chennai • Gujarat</li>
+               
+               <li className="pt-4">
+                  <Link href="/about" className="text-primary font-bold text-xs hover:underline">About Our Journey</Link>
+               </li>
+               <li>
+                  <Link href="/support" className="text-slate-500 font-bold text-xs hover:text-primary">24/7 Global Support</Link>
+               </li>
             </ul>
           </div>
 
           {/* Contact Details */}
           <div>
-            <h4 className="text-slate-900 font-black text-lg mb-6 uppercase tracking-wider">Contact Us</h4>
-            <ul className="space-y-4 mb-6">
-              <li className="flex items-start space-x-3">
+            <h4 className="text-slate-900 font-bold text-lg mb-8 tracking-tight">Expert Help</h4>
+            <ul className="space-y-5 mb-8">
+              <li className="flex items-start space-x-4">
                 <MapPin className="text-primary mt-1 flex-shrink-0" size={18} />
-                <span className="font-bold text-slate-700 text-sm">Gachibowli, Serilingampalle, Hyderabad, 500032</span>
+                <span className="font-semibold text-slate-800 text-sm leading-relaxed">
+                  Gachibowli, Serilingampalle,<br />Hyderabad, 500032
+                </span>
               </li>
-              <li className="flex items-center space-x-3">
-                <Mail className="text-primary flex-shrink-0" size={18} />
-                <span className="font-bold text-slate-700 text-sm">sales@paddlog.com</span>
+              <li className="flex flex-col space-y-3">
+                <div className="flex items-center space-x-4">
+                  <Mail className="text-primary flex-shrink-0" size={18} />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-slate-700 text-xs">Blrops@paddlog.com</span>
+                    <span className="font-bold text-slate-700 text-xs">Hydops@paddlog.com</span>
+                  </div>
+                </div>
               </li>
-              <li className="flex items-center space-x-3">
+              <li className="flex items-center space-x-4">
                 <Phone className="text-primary flex-shrink-0" size={18} />
-                <div className="flex flex-col font-bold text-slate-700 text-sm">
-                  <span>+91 7386107071</span>
-                  <span>+91 7386444710</span>
+                <div className="flex flex-col font-bold text-slate-800 text-xs">
+                  <span>Bangalore: 7386107071</span>
+                  <span>Hyderabad: 7093777026</span>
                 </div>
               </li>
             </ul>
@@ -82,17 +96,26 @@ export function Footer() {
               href="https://maps.app.goo.gl/SZ5RhwhaEhLr8pC77"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center space-x-2 w-full bg-slate-900 text-white px-4 py-4 rounded-xl shadow-lg hover:bg-slate-800 transition-all duration-300 group"
+              className="inline-flex items-center justify-center space-x-3 w-full bg-slate-900 text-white px-5 py-4 rounded-xl shadow-2xl hover:bg-slate-800 transition-all duration-300 group"
             >
               <MapPin size={18} className="text-primary group-hover:animate-bounce" />
-              <span className="font-black text-[10px] uppercase tracking-widest">View on Google Maps</span>
+              <span className="font-black text-[10px] uppercase tracking-widest">Get Directions</span>
             </a>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-200 flex flex-col items-center gap-2 text-center text-sm text-slate-400">
-          <p className="font-bold">&copy; {currentYear} Paddlog DG Solutions. All rights reserved.</p>
-          <p className="font-black text-[10px] uppercase tracking-[0.2em] text-primary">Premium Logistics Design</p>
+        {/* Improved Bottom Section */}
+        <div className="pt-4 border-t border-slate-100 pb-4">
+           <div className="flex flex-col items-center justify-center text-center space-y-3">
+              <div>
+                 <div className="text-slate-400 text-xs font-semibold">
+                    © {new Date().getFullYear()} Paddlog DG Solutions. All rights reserved.
+                 </div>
+                 <div className="text-primary font-bold text-[10px] uppercase tracking-[0.25em] mt-1">
+                    Premium Logistics Engineering
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
     </footer>
@@ -102,7 +125,7 @@ export function Footer() {
 function FooterLink({ href, text }: { href: string; text: string }) {
   return (
     <li>
-      <Link href={href} className="text-slate-500 font-bold text-sm hover:text-primary transition-colors duration-200 block uppercase tracking-tighter">
+      <Link href={href} className="text-slate-500 font-medium text-sm hover:text-primary transition-colors duration-200 block">
         {text}
       </Link>
     </li>
@@ -113,7 +136,7 @@ function SocialIcon({ icon, href }: { icon: React.ReactNode; href: string }) {
   return (
     <a
       href={href}
-      className="bg-white border border-slate-200 p-2.5 rounded-xl text-slate-400 hover:text-primary hover:border-primary hover:shadow-lg transition-all duration-300"
+      className="bg-white border border-slate-200 p-3 rounded-xl text-slate-400 hover:text-primary hover:border-primary hover:shadow-xl transition-all duration-300"
     >
       {icon}
     </a>
