@@ -83,11 +83,11 @@ export function MapSection() {
       </div>
 
       {/* Dynamic Network Visualizer */}
-      <div className="relative w-full aspect-[21/9] bg-[linear-gradient(180deg,#f8fbff_0%,#edf3fb_100%)] border-y border-slate-200 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.4))] z-[1]" />
+      <div className="relative w-full aspect-[21/9] bg-[#07111f] border-y border-slate-200 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.04),rgba(7,17,31,0.18))] z-[1]" />
         <img 
           src="/global_network_landscape.png" 
-          className="w-full h-full object-cover opacity-80 saturate-[0.9] brightness-110" 
+          className="w-full h-full object-cover object-center opacity-100 contrast-[1.08] saturate-[1.05] brightness-[1.03]" 
           alt="World Map" 
         />
         

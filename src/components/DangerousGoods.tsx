@@ -137,7 +137,7 @@ const dgClasses = [
 
 export function DangerousGoods() {
   return (
-    <section id="dg-classes" className="py-24 bg-white relative overflow-hidden">
+    <section id="dg-classes" className="py-24 bg-slate-50 relative overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="text-center mb-20">
           <motion.h2
@@ -146,7 +146,7 @@ export function DangerousGoods() {
             viewport={{ once: true }}
             className="text-5xl md:text-7xl font-black mb-8 text-slate-900 tracking-tight"
           >
-            The 9 Classes of <span className="text-primary italic">Dangerous Goods</span>
+            The 9 Classes of <span className="text-primary">Dangerous Goods</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" role="img" aria-labelledby="title desc">
+  <title id="title">Yusen Logistics</title>
+  <desc id="desc">Clean fallback wordmark for Yusen Logistics.</desc>
+  <rect width="280" height="72" rx="18" fill="#ffffff"/>
+  <path d="M32 18h12l9 16 9-16h12L58 43v11H48V43L32 18Z" fill="#1f3d8f"/>
+  <path d="M80 18h12v25h31v11H80V18Z" fill="#1f3d8f"/>
+  <path d="M131 18h43v10h-31v4h26v9h-26v4h32v10h-44V18Z" fill="#1f3d8f"/>
+  <path d="M183 18h13l21 24V18h12v36h-11l-23-25v25h-12V18Z" fill="#1f3d8f"/>
+  <path d="M236 18h13l9 16 9-16h13l-16 25v11h-12V43l-16-25Z" fill="#1f3d8f"/>
+  <path d="M171 61H80v-5h91c7 0 13-2 19-6l10-7 3 4-10 7c-7 5-14 7-23 7Z" fill="#7fb5ff"/>
+</svg>

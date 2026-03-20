@@ -72,7 +72,7 @@ export function Testimonials() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
-            What Our Clients <span className="text-primary italic">Say</span>
+            What Our Clients <span className="text-primary">Say</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -117,7 +117,7 @@ export function Testimonials() {
                 ))}
               </div>
 
-              <p className="text-lg sm:text-2xl md:text-3xl font-medium text-slate-700 italic leading-relaxed mb-8 md:mb-10">
+              <p className="text-lg sm:text-2xl md:text-3xl font-medium text-slate-700 leading-relaxed mb-8 md:mb-10">
                 &ldquo;{testimonials[index].content}&rdquo;
               </p>
 

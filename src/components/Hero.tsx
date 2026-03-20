@@ -67,13 +67,21 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white font-roboto">
-      {/* Background with a premium, bright logistics feel */}
+    <section className="relative flex min-h-[90vh] items-center overflow-hidden bg-[#f7f3ef] font-roboto">
+      {/* Background stays light but shifts away from flat white */}
       <div className="absolute inset-0 z-0 text-slate-900">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(225,29,72,0.03)_0%,transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_80%,rgba(59,130,246,0.03)_0%,transparent_50%)]" />
-        {/* Subtle Grid Layer - Darker for visibility on light bg */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,#fcfaf8_0%,#f7f3ef_45%,#f1ece7_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(225,29,72,0.08)_0%,transparent_46%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_78%,rgba(59,130,246,0.08)_0%,transparent_48%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_100%,rgba(15,23,42,0.05)_0%,transparent_42%)]" />
+        <div
+          className="absolute inset-0 opacity-[0.045]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(15,23,42,0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.9) 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+        />
       </div>
 
       <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pt-32 pb-20">
@@ -94,7 +102,7 @@ export function Hero() {
               key={wordIndex}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-primary italic"
+              className="text-primary"
             >
               {words[wordIndex]}
             </motion.span>
@@ -109,12 +117,12 @@ export function Hero() {
               Book Now
               <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/services" className="px-10 py-4 rounded-full font-bold text-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all text-center">
+            <Link href="/services" className="bg-white/75 px-10 py-4 rounded-full font-bold text-lg border border-slate-300/70 text-slate-700 hover:bg-white transition-all text-center shadow-[0_12px_35px_-28px_rgba(15,23,42,0.5)]">
               Explore Services
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 gap-8 border-t border-slate-100 pt-10">
+          <div className="grid grid-cols-3 gap-8 border-t border-slate-200/70 pt-10">
             {stats.map(({ icon: Icon, label, value, suffix }) => (
               <div key={label}>
                 <div className="text-3xl font-black text-slate-900 mb-1 tracking-tight">
@@ -145,12 +153,12 @@ export function Hero() {
           
 
 
-          <div className="absolute -top-6 -right-6 bg-white border border-slate-100 shadow-2xl p-5 rounded-2xl z-20" style={{ animationDuration: '4s' }}>
+          <div className="absolute -top-6 -right-6 bg-white/90 border border-slate-200 shadow-2xl p-5 rounded-2xl z-20 backdrop-blur-sm" style={{ animationDuration: '4s' }}>
              <ShieldCheck size={28} className="text-primary mb-1" />
              <div className="text-[10px] font-black uppercase text-slate-900 tracking-widest leading-none">Compliant</div>
           </div>
           
-          <div className="absolute -bottom-8 -left-8 bg-white border border-slate-100 p-5 rounded-2xl shadow-xl z-20">
+          <div className="absolute -bottom-8 -left-8 bg-white/90 border border-slate-200 p-5 rounded-2xl shadow-xl z-20 backdrop-blur-sm">
              <div className="flex items-center gap-3">
                <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center">
                  <Globe2 size={20} className="text-primary" />

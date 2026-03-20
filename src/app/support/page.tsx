@@ -51,7 +51,7 @@ export default function Support() {
                 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tighter text-slate-900 mb-6"
               >
                 24/7 Expert <br />
-                <span className="text-primary italic">Assistance.</span>
+                <span className="text-primary">Assistance.</span>
               </motion.h1>
 
               <motion.p 
@@ -134,11 +134,11 @@ export default function Support() {
                    <Phone size={24} />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-slate-900 tracking-tight">Global Hotline</h3>
-                <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed italic">Immediate voice coordination for urgent shipment bottlenecks.</p>
+                <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed">Immediate voice coordination for urgent shipment bottlenecks.</p>
                 <div className="space-y-3">
                    {[
-                     { label: "Line 1", value: "+91 73861 07071", href: "tel:+917386107071" },
-                     { label: "Line 2", value: "+91 73864 44710", href: "tel:+917386444710" }
+                     { label: "Bangalore", value: "+91 73861 07071", href: "tel:+917386107071" },
+                     { label: "Hyderabad", value: "+91 70937 77026", href: "tel:+917093777026" }
                    ].map((link, i) => (
                      <a key={i} href={link.href} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 hover:border-primary/30 transition-all group/item shadow-sm">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{link.label}</span>
@@ -171,11 +171,11 @@ export default function Support() {
                    <Mail size={24} />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-slate-900 tracking-tight">Expert Review</h3>
-                <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed italic">Submit MSDS and manifests for immediate specialized check.</p>
+                <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed">Submit MSDS and manifests for immediate specialized check.</p>
                 <div className="space-y-3">
                    {[
-                     { label: "Ops & Sales", value: "sales@paddlog.com", href: "mailto:sales@paddlog.com" },
-                     { label: "Billing", value: "accounts@paddlog.com", href: "mailto:accounts@paddlog.com" }
+                     { label: "Ops & Sales", value: "Blrops@paddlog.com", href: "mailto:Blrops@paddlog.com" },
+                     { label: "Technical", value: "Hydops@paddlog.com", href: "mailto:Hydops@paddlog.com" }
                    ].map((link, i) => (
                      <a key={i} href={link.href} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 hover:border-primary/30 transition-all group/item shadow-sm">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{link.label}</span>

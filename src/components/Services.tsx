@@ -68,7 +68,7 @@ export function Services() {
             viewport={{ once: true }}
             className="text-5xl md:text-7xl font-black mb-6 text-slate-900 tracking-tight"
           >
-            Hazardous <span className="text-primary italic">Logistics</span> Solutions
+            Hazardous <span className="text-primary">Logistics</span> Solutions
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
