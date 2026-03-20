@@ -138,8 +138,8 @@ export function Navbar() {
             className="lg:hidden fixed inset-0 z-[2000]"
           >
             <div className="absolute inset-0 bg-white/98 backdrop-blur-sm" />
-            <div className="relative flex min-h-full items-start justify-center overflow-y-auto px-6 pb-8 pt-24">
-              <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_-36px_rgba(15,23,42,0.35)]">
+            <div className="relative flex h-dvh items-start justify-center overflow-y-auto px-4 pb-4 pt-20 sm:px-6 sm:pb-6 sm:pt-24">
+              <div className="w-full max-w-md max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_24px_70px_-36px_rgba(15,23,42,0.35)] sm:max-h-[calc(100dvh-7.5rem)] sm:p-6">
                 <div className="mb-6 flex items-center justify-end">
                   <button
                     className="rounded-full bg-slate-50 p-3 text-slate-900"
@@ -155,7 +155,7 @@ export function Navbar() {
                     <Link
                       key={link.name}
                       href={link.href}
-                      className="block rounded-2xl px-4 py-4 text-3xl font-black uppercase tracking-[0.14em] text-slate-900 transition-colors active:text-primary"
+                      className="block rounded-2xl px-4 py-3 text-[1.7rem] font-black uppercase tracking-[0.14em] text-slate-900 transition-colors active:text-primary sm:py-4 sm:text-3xl"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {link.name}
@@ -163,10 +163,10 @@ export function Navbar() {
                   ))}
                 </div>
 
-                <div className="mt-8 space-y-5 border-t border-slate-100 pt-8">
+                <div className="mt-6 space-y-4 border-t border-slate-100 pt-6 sm:mt-8 sm:space-y-5 sm:pt-8">
                   <Link
                     href="/support"
-                    className="flex items-center justify-center gap-4 rounded-[1.75rem] bg-slate-50 px-4 py-5 font-black text-xl uppercase tracking-[0.14em] text-slate-900"
+                    className="flex items-center justify-center gap-3 rounded-[1.75rem] bg-slate-50 px-4 py-4 text-center text-lg font-black uppercase tracking-[0.14em] text-slate-900 sm:gap-4 sm:py-5 sm:text-xl"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -176,7 +176,7 @@ export function Navbar() {
                   </Link>
                   <Link
                     href="/book"
-                    className="red-gradient block rounded-[1.75rem] px-4 py-5 text-center text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl"
+                    className="red-gradient block rounded-[1.75rem] px-4 py-4 text-center text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl sm:py-5"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Book Service
