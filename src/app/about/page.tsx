@@ -1,9 +1,11 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { OfficeNetwork } from "@/components/OfficeNetwork";
 import { motion } from "framer-motion";
-import { Shield, Target, Users, MapPin, Award, Package, Heart, Building } from "lucide-react";
+import { Shield, Award, Package, Heart, Building } from "lucide-react";
 
 export default function About() {
   return (
@@ -229,33 +231,7 @@ export default function About() {
             <p className="text-slate-500 mt-4 font-bold uppercase tracking-[0.2em] text-xs">Strategically Positioned to Serve You Better</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 md:px-0">
-            <LocationCard
-              city="Hyderabad"
-              tag="Head Office"
-              desc="Global control center managing pan-India operations and strategic directions."
-            />
-            <LocationCard
-              city="Bangalore"
-              tag="Branch Office"
-              desc="Strategic hub for biotech, aviation parts, and high-tech equipment logistics."
-            />
-            <LocationCard
-              city="Mumbai"
-              tag="Branch Office"
-              desc="Key gateway for western India's pharmaceutical and chemical export industries."
-            />
-            <LocationCard
-              city="Chennai"
-              tag="Branch Office"
-              desc="Specialized handling for South India's industrial and port-centric cargo."
-            />
-             <LocationCard
-              city="Gujarat"
-              tag="Branch Office"
-              desc="Dedicated support for India's largest manufacturing and industrial hub."
-            />
-          </div>
+          <OfficeNetwork />
         </div>
       </section>
 
@@ -292,20 +268,7 @@ function TimelineDot({ delay = 0 }: { delay?: number }) {
   );
 }
 
-function LocationCard({ city, tag, desc }: { city: string; tag: string; desc: string }) {
-  return (
-    <div className="bg-white p-8 lg:p-10 rounded-[2rem] shadow-premium border border-slate-100 text-center flex flex-col items-center hover:shadow-red-glow transition-all duration-300">
-      <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-        <MapPin size={24} />
-      </div>
-      <h3 className="text-2xl font-bold text-slate-900 mb-2 uppercase tracking-tighter">{city}</h3>
-      <p className="text-primary font-black text-[10px] uppercase tracking-[0.2em] mb-4">{tag}</p>
-      <p className="text-slate-500 text-sm leading-relaxed font-medium">{desc}</p>
-    </div>
-  );
-}
-
-function ValueCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+function ValueCard({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return (
     <div className="p-10 rounded-[3rem] bg-white shadow-premium border border-slate-100 hover:shadow-red-glow transition-all duration-300">
       <div className="mb-6">{icon}</div>

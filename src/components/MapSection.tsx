@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Globe2 } from "lucide-react";
+import { OfficeNetwork } from "@/components/OfficeNetwork";
 
 type HubProps = {
   x: string;
@@ -25,20 +26,6 @@ type FlyingPlaneProps = {
   flip: boolean;
   className?: string;
 };
-
-type StatSmallProps = {
-  value: string;
-  label: string;
-};
-
-const offices = [
-  { city: "Hyderabad", tag: "Head Office", desc: "Hyderabad, Telangana, India" },
-  { city: "Mumbai", tag: "West India Hub", desc: "Mumbai, Maharashtra, India" },
-  { city: "Chennai", tag: "South India Hub", desc: "Chennai, Tamil Nadu, India" },
-  { city: "Bangalore", tag: "Tech City Office", desc: "Bangalore, Karnataka, India" },
-];
-
-const regions = ["Europe", "USA", "Middle East", "Southeast Asia", "Africa", "Australia"];
 
 export function MapSection() {
   const [isSmUp, setIsSmUp] = useState(true);
@@ -72,14 +59,17 @@ export function MapSection() {
       <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.10),transparent_55%)] pointer-events-none" />
 
       <div className="container mx-auto px-6 relative z-10 text-center mb-20">
-        <div className="inline-flex items-center gap-2 bg-white text-[#E53935] px-5 py-2 rounded-full text-xs font-bold uppercase tracking-[0.3em] mb-6 border border-slate-200 shadow-sm">
+        <div className="inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#E53935] shadow-sm sm:px-5 sm:text-xs sm:tracking-[0.3em]">
           <Globe2 size={14} />
-          Global Network Protocol
+          <span className="break-words text-center">Global Network Protocol</span>
         </div>
-        <h2 className="text-5xl md:text-7xl font-bold text-slate-900 tracking-tighter uppercase mb-2">
-          International <span className="text-[#E53935]">reach</span>
+        <h2 className="mb-2 text-[2.7rem] font-normal uppercase leading-[0.92] tracking-[-0.05em] text-slate-900 sm:text-5xl md:text-7xl">
+          <span className="block">International</span>
+          <span className="block text-[#E53935]">Reach</span>
         </h2>
-        <p className="text-slate-500 font-medium">Connecting major industrial hubs with dangerous goods precision.</p>
+        <p className="mx-auto max-w-xl text-slate-500 font-medium">
+          Connecting major industrial hubs with dangerous goods precision.
+        </p>
       </div>
 
       {/* Dynamic Network Visualizer */}
@@ -116,38 +106,8 @@ export function MapSection() {
         <Hub x="65%" y="55%" label="Singapore Hub" />
       </div>
 
-      <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 mt-20 relative z-10 font-roboto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {offices.map((office, i) => (
-            <motion.div
-              key={office.city}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white/80 border border-slate-200 p-8 rounded-[2rem] hover:bg-white hover:border-[#E53935]/30 transition-all cursor-default group shadow-[0_20px_50px_rgba(148,163,184,0.16)]"
-            >
-              <div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-[#E53935] transition-colors uppercase">{office.city}</div>
-              <div className="text-[#E53935] text-[10px] font-bold uppercase tracking-widest">{office.tag}</div>
-              <p className="text-slate-500 text-sm mt-4 font-medium leading-relaxed">{office.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="space-y-10">
-          <div className="flex flex-wrap gap-3">
-            {regions.map((region) => (
-              <span key={region} className="px-6 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 text-sm font-bold uppercase tracking-widest hover:bg-[#E53935] hover:text-white hover:border-[#E53935] transition-all cursor-default shadow-sm">
-                {region}
-              </span>
-            ))}
-          </div>
-          
-          <div className="grid grid-cols-3 gap-3 sm:gap-6">
-            <StatSmall value="50+" label="Countries" />
-            <StatSmall value="200+" label="Partners" />
-            <StatSmall value="24/7" label="Uplink" />
-          </div>
-        </div>
+      <div className="container mx-auto px-6 mt-20 relative z-10 font-roboto">
+        <OfficeNetwork />
       </div>
     </section>
   );
@@ -188,14 +148,5 @@ function FlyingPlane({ src, from, to, duration, delay, size, flip, className = "
         times: [0, 0.1, 0.9, 1]
       }}
     />
-  );
-}
-
-function StatSmall({ value, label }: StatSmallProps) {
-  return (
-    <div className="min-w-0 text-center p-3 sm:p-8 bg-white/80 border border-slate-200 rounded-[2rem] hover:border-[#E53935]/50 transition-all shadow-[0_20px_50px_rgba(148,163,184,0.14)]">
-      <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 uppercase tracking-tighter leading-none">{value}</div>
-      <div className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-[0.12em] sm:tracking-[0.2em] leading-tight break-words">{label}</div>
-    </div>
   );
 }

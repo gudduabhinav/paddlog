@@ -106,16 +106,18 @@ export function WhyChoose() {
                     key={index}
                     variants={itemVariants}
                     whileHover={{ x: 10 }}
-                    className="flex items-start gap-8 p-10 bg-slate-50 border border-slate-100 rounded-[2.5rem] shadow-sm hover:shadow-premium transition-all group cursor-pointer"
+                    className="flex flex-col items-start gap-5 rounded-[2.5rem] border border-slate-100 bg-slate-50 p-6 shadow-sm transition-all group cursor-pointer hover:shadow-premium sm:flex-row sm:gap-8 sm:p-10"
                   >
-                    <div className={`${feature.color} p-5 rounded-2xl group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm`}>
+                    <div className={`${feature.color} rounded-2xl p-4 shadow-sm transition-all duration-500 group-hover:bg-primary group-hover:text-white sm:p-5`}>
                       <Icon size={32} />
                     </div>
-                    <div className="flex-1 space-y-2">
-                      <h4 className="text-2xl font-bold group-hover:text-primary transition-colors text-slate-900">{feature.title}</h4>
-                      <p className="text-slate-500 text-lg leading-relaxed font-medium">{feature.desc}</p>
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <h4 className="text-2xl font-bold text-slate-900 transition-colors group-hover:text-primary">{feature.title}</h4>
+                      <p className="max-w-[18rem] text-base font-medium leading-relaxed text-slate-500 sm:max-w-none sm:text-lg">
+                        {feature.desc}
+                      </p>
                     </div>
-                    <div className="pt-2">
+                    <div className="hidden pt-2 sm:block">
                       <ArrowRight size={24} className="text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                     </div>
                   </motion.div>

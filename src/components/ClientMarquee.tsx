@@ -150,7 +150,7 @@ export function ClientMarquee() {
           Trusted Partners
         </div>
         <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-          Working With <span className="text-primary italic">Global</span> Entities
+          Working With <span className="text-primary">Global</span> Entities
         </h2>
       </motion.div>
 

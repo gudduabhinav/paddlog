@@ -36,6 +36,21 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   return (
     <nav
       className={cn(
@@ -99,62 +114,75 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button
-          className={cn(
-            "lg:hidden p-3 rounded-xl transition-colors relative z-[1100]",
-            isScrolled || !forceDarkBg ? "text-slate-900 bg-slate-100" : "text-white bg-white/10"
-          )}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {!mobileMenuOpen ? (
+          <button
+            className={cn(
+              "lg:hidden p-3 rounded-xl transition-colors relative z-[1100]",
+              isScrolled || !forceDarkBg ? "text-slate-900 bg-slate-100" : "text-white bg-white/10"
+            )}
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open mobile menu"
+          >
+            <Menu size={24} />
+          </button>
+        ) : null}
       </div>
 
       {/* Mobile Nav */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="lg:hidden fixed inset-0 bg-white z-[1050] p-8 flex flex-col justify-center gap-6 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="lg:hidden fixed inset-0 z-[2000]"
           >
-             <button
-              className="absolute top-12 right-12 p-3 text-slate-900 bg-slate-50 rounded-full"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <X size={32} />
-            </button>
-
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="text-4xl font-black uppercase tracking-widest text-slate-900 active:text-primary transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-            
-            <div className="pt-10 border-t border-slate-100 mt-6 space-y-8">
-               <Link
-                href="/support"
-                className="flex items-center justify-center gap-4 font-black text-2xl uppercase tracking-widest text-slate-900"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                  <Headphones size={24} strokeWidth={3} />
+            <div className="absolute inset-0 bg-white/98 backdrop-blur-sm" />
+            <div className="relative flex min-h-full items-start justify-center overflow-y-auto px-6 pb-8 pt-24">
+              <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_-36px_rgba(15,23,42,0.35)]">
+                <div className="mb-6 flex items-center justify-end">
+                  <button
+                    className="rounded-full bg-slate-50 p-3 text-slate-900"
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-label="Close mobile menu"
+                  >
+                    <X size={28} />
+                  </button>
                 </div>
-                <span>Global Support</span>
-              </Link>
-              <Link
-                href="/book"
-                className="red-gradient text-white text-center py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm block shadow-2xl mx-6"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Book Service
-              </Link>
+
+                <div className="space-y-2 text-center">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className="block rounded-2xl px-4 py-4 text-3xl font-black uppercase tracking-[0.14em] text-slate-900 transition-colors active:text-primary"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="mt-8 space-y-5 border-t border-slate-100 pt-8">
+                  <Link
+                    href="/support"
+                    className="flex items-center justify-center gap-4 rounded-[1.75rem] bg-slate-50 px-4 py-5 font-black text-xl uppercase tracking-[0.14em] text-slate-900"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Headphones size={24} strokeWidth={3} />
+                    </div>
+                    <span>Global Support</span>
+                  </Link>
+                  <Link
+                    href="/book"
+                    className="red-gradient block rounded-[1.75rem] px-4 py-5 text-center text-sm font-black uppercase tracking-[0.2em] text-white shadow-2xl"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Book Service
+                  </Link>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
