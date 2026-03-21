@@ -65,7 +65,7 @@ export function MapSection() {
         </div>
         <h2 className="mb-2 text-[2.7rem] font-normal uppercase leading-[0.92] tracking-[-0.05em] text-slate-900 sm:text-5xl md:text-7xl">
           <span className="block">International</span>
-          <span className="block text-[#E53935]">Reach</span>
+          <span className="block font-bold text-[#E53935]">Reach</span>
         </h2>
         <p className="mx-auto max-w-xl text-slate-500 font-medium">
           Connecting major industrial hubs with dangerous goods precision.
@@ -75,18 +75,18 @@ export function MapSection() {
       {/* Dynamic Network Visualizer */}
       <div className="relative w-full aspect-[21/9] bg-[#07111f] border-y border-slate-200 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.04),rgba(7,17,31,0.18))] z-[1]" />
-        <img 
-          src="/global_network_landscape.png" 
-          className="w-full h-full object-cover object-center opacity-100 contrast-[1.08] saturate-[1.05] brightness-[1.03]" 
-          alt="World Map" 
+        <img
+          src="/global_network_landscape.png"
+          className="w-full h-full object-cover object-center opacity-100 contrast-[1.08] saturate-[1.05] brightness-[1.03]"
+          alt="World Map"
         />
-        
+
         {/* Animated Flying Planes - Mixture of plane-1 and plane-2 */}
         <FlyingPlane src="/plane-1.png" from={{ x: "-10%", y: "45%" }} to={{ x: "110%", y: "35%" }} duration={isSmUp ? 16 : 10} delay={0} size={5} flip={true} />
-        
+
         {/* Plane 2 Takeoff - From Bottom Left to Top Right */}
         <FlyingPlane src="/plane-2.png" from={{ x: "-10%", y: "90%" }} to={{ x: "110%", y: "20%" }} duration={isSmUp ? 15 : 9} delay={4} size={6} flip={false} />
-        
+
         {isSmUp && (
           <>
             <FlyingPlane src="/plane-1.png" from={{ x: "50%", y: "15%" }} to={{ x: "110%", y: "60%" }} duration={14} delay={2} size={4.5} flip={true} className="hidden sm:block" />
@@ -135,15 +135,15 @@ function FlyingPlane({ src, from, to, duration, delay, size, flip, className = "
       className={`absolute pointer-events-none z-10 sm:filter sm:brightness-95 sm:drop-shadow-[0_0_8px_rgba(15,23,42,0.18)] ${className}`}
       style={{ width: `${size}rem`, scaleX: flip ? -1 : 1 }}
       initial={{ left: from.x, top: from.y, opacity: 0 }}
-      animate={{ 
-        left: [from.x, to.x], 
+      animate={{
+        left: [from.x, to.x],
         top: [from.y, to.y],
         opacity: [0, 1, 1, 0]
       }}
-      transition={{ 
-        duration, 
-        delay, 
-        repeat: Infinity, 
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
         ease: "linear",
         times: [0, 0.1, 0.9, 1]
       }}
