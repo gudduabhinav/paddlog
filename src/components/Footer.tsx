@@ -49,19 +49,27 @@ export function Footer() {
           {/* More Links */}
           <div>
             <h4 className="text-slate-900 font-bold text-lg mb-8 tracking-tight">Global Reach</h4>
-            <ul className="space-y-4">
-               <li className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Head Office</li>
-               <li className="text-sm font-semibold text-slate-800 -mt-3">Hyderabad (HQ)</li>
-               
-               <li className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-2">Branches</li>
-               <li className="text-sm font-semibold text-slate-600 -mt-3">Bangalore • Mumbai • Chennai • Gujarat</li>
-               
-               <li className="pt-4">
-                  <Link href="/about" className="text-primary font-bold text-xs hover:underline">About Our Journey</Link>
-               </li>
-               <li>
-                  <Link href="/support" className="text-slate-500 font-bold text-xs hover:text-primary">24/7 Global Support</Link>
-               </li>
+            <ul className="space-y-5">
+              <li className="space-y-1.5">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Head Office</p>
+                <p className="text-sm font-semibold text-slate-800">Hyderabad (HQ)</p>
+              </li>
+
+              <li className="space-y-1.5">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Branches</p>
+                <p className="text-sm font-semibold text-slate-600">
+                  Bangalore &bull; Mumbai &bull; Chennai &bull; Gujarat
+                </p>
+              </li>
+
+              <li className="flex flex-col gap-3 pt-1">
+                <Link href="/about" className="text-primary font-bold text-xs hover:underline">
+                  About Our Journey
+                </Link>
+                <Link href="/support" className="text-slate-500 font-bold text-xs hover:text-primary">
+                  24/7 Global Support
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -72,23 +80,25 @@ export function Footer() {
               <li className="flex items-start space-x-4">
                 <MapPin className="text-primary mt-1 flex-shrink-0" size={18} />
                 <span className="font-semibold text-slate-800 text-sm leading-relaxed">
-                  Gachibowli, Serilingampalle,<br />Hyderabad, 500032
+                  Gachibowli, Serilingampalle,
+                  <br />
+                  Hyderabad, 500032
                 </span>
               </li>
               <li className="flex flex-col space-y-3">
                 <div className="flex items-center space-x-4">
                   <Mail className="text-primary flex-shrink-0" size={18} />
                   <div className="flex flex-col">
-                    <span className="font-bold text-slate-700 text-xs">Blrops@paddlog.com</span>
                     <span className="font-bold text-slate-700 text-xs">Hydops@paddlog.com</span>
+                    <span className="font-bold text-slate-700 text-xs">Blrops@paddlog.com</span>
                   </div>
                 </div>
               </li>
               <li className="flex items-center space-x-4">
                 <Phone className="text-primary flex-shrink-0" size={18} />
                 <div className="flex flex-col font-bold text-slate-800 text-xs">
-                  <span>Bangalore: 7386107071</span>
                   <span>Hyderabad: 7093777026</span>
+                  <span>Bangalore: 7386107071</span>
                 </div>
               </li>
             </ul>
@@ -106,16 +116,16 @@ export function Footer() {
 
         {/* Improved Bottom Section */}
         <div className="pt-4 border-t border-slate-100 pb-4">
-           <div className="flex flex-col items-center justify-center text-center space-y-3">
-              <div>
-                 <div className="text-slate-400 text-xs font-semibold">
-                    © {new Date().getFullYear()} Paddlog DG Solutions. All rights reserved.
-                 </div>
-                 <div className="text-primary font-bold text-[10px] uppercase tracking-[0.25em] mt-1">
-                    Premium Logistics Engineering
-                 </div>
+          <div className="flex flex-col items-center justify-center text-center space-y-3">
+            <div>
+              <div className="text-slate-400 text-xs font-semibold">
+                &copy; {currentYear} Paddlog DG Solutions. All rights reserved.
               </div>
-           </div>
+              <div className="text-primary font-bold text-[10px] uppercase tracking-[0.25em] mt-1">
+                Premium Logistics Engineering
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
@@ -125,7 +135,10 @@ export function Footer() {
 function FooterLink({ href, text }: { href: string; text: string }) {
   return (
     <li>
-      <Link href={href} className="text-slate-500 font-medium text-sm hover:text-primary transition-colors duration-200 block">
+      <Link
+        href={href}
+        className="text-slate-500 font-medium text-sm hover:text-primary transition-colors duration-200 block"
+      >
         {text}
       </Link>
     </li>
