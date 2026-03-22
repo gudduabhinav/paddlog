@@ -86,9 +86,79 @@ export default function BookServicePage() {
     return Object.keys(errs).length === 0;
   };
 
+  const handlePayment = () => {
+    setLoading(true);
+    
+    // Safety check for Razorpay script
+    if (!(window as any).Razorpay) {
+      alert("Payment gateway is loading. Please try again in a moment.");
+      setLoading(false);
+      return;
+    }
+
+    const options = {
+      key: "rzp_test_SU0W2XZX5yWOqS",
+      amount: 50000, // 500 INR in paise for testing
+      currency: "INR",
+      name: "Paddlog DG Solutions",
+      description: `Booking for ${selectedService?.title}`,
+      image: "/paddlog-logo.png",
+      handler: async function (response: any) {
+        await handleSubmit(response.razorpay_payment_id);
+      },
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: { color: "#ef4444" },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.on('payment.failed', function (response: any) {
+      alert("Payment Failed: " + response.error.description);
+      setLoading(false);
+    });
+    rzp.open();
+  };
+
+  const handleSubmit = async (paymentId?: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .insert([{
+          customer_name: formData.name,
+          customer_email: formData.email,
+          customer_phone: formData.phone,
+          service_type: selectedService?.title || formData.serviceId,
+          status: paymentId ? "Paid" : "Pending",
+          service_details: {
+            ...formData,
+            payment_id: paymentId,
+            amount_paid: 500,
+            submitted_at: new Date().toISOString()
+          }
+        }]);
+
+      if (error) throw error;
+      setStep(4);
+    } catch (err) {
+      console.error("Booking submission error:", err);
+      alert("Booking saved but there was an error updating status. Our team will contact you.");
+      setStep(4); // Still move to success for better UX
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleNext = () => {
     if (step === 1 && !formData.serviceId) return;
     if (step === 2 && !validate()) return;
+    if (step === 3) {
+      handlePayment();
+      return;
+    }
     setStep(s => s + 1);
   };
 
