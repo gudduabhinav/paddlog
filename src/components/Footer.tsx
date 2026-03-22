@@ -98,7 +98,6 @@ export function Footer() {
                 <Phone className="text-primary flex-shrink-0" size={18} />
                 <div className="flex flex-col font-bold text-slate-800 text-xs">
                   <span>Hyderabad: 7093777026</span>
-                  <span>Bangalore: 7386107071</span>
                 </div>
               </li>
             </ul>
