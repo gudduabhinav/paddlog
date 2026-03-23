@@ -45,7 +45,7 @@ export function FloatingActions() {
 
       {/* WhatsApp Button */}
       <motion.a
-        href="https://wa.me/917386107071"
+        href="https://wa.me/917093777026"
         target="_blank"
         rel="noopener noreferrer"
         initial={{ opacity: 0, scale: 0, y: 20 }}
