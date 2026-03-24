@@ -7,11 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, FileText, Plane, Box, ShieldCheck, Warehouse,
   ArrowRight, Check, User, Mail, Phone, Building2, Weight, Search, Download,
-  Ruler, Layers, Home, PhoneCall, ShieldCheck as Shield, Globe, Award
+  Ruler, Layers, Home, PhoneCall, ShieldCheck as Shield, Globe, Award, CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
-import Script from "next/script";
+
 
 const services = [
   {
@@ -86,43 +86,12 @@ export default function BookServicePage() {
     return Object.keys(errs).length === 0;
   };
 
+  // Removed integrated modal payment as per client request to use personalized link
   const handlePayment = () => {
-    setLoading(true);
-    
-    // Safety check for Razorpay script
-    if (!(window as any).Razorpay) {
-      alert("Payment gateway is loading. Please try again in a moment.");
-      setLoading(false);
-      return;
-    }
-
-    const options = {
-      key: "rzp_test_SU0W2XZX5yWOqS",
-      amount: 50000, // 500 INR in paise for testing
-      currency: "INR",
-      name: "Paddlog DG Solutions",
-      description: `Booking for ${selectedService?.title}`,
-      image: "/paddlog-logo.png",
-      handler: async function (response: any) {
-        await handleSubmit(response.razorpay_payment_id);
-      },
-      prefill: {
-        name: formData.name,
-        email: formData.email,
-        contact: formData.phone,
-      },
-      theme: { color: "#ef4444" },
-    };
-
-    const rzp = new (window as any).Razorpay(options);
-    rzp.on('payment.failed', function (response: any) {
-      alert("Payment Failed: " + response.error.description);
-      setLoading(false);
-    });
-    rzp.open();
+    handleSubmit();
   };
 
-  const handleSubmit = async (paymentId?: string) => {
+  const handleSubmit = async () => {
     setLoading(true);
     try {
       const { error } = await supabase
@@ -132,27 +101,38 @@ export default function BookServicePage() {
           customer_email: formData.email,
           customer_phone: formData.phone,
           service_type: selectedService?.title || formData.serviceId,
-          status: paymentId ? "Paid" : "Pending",
+          status: "Pending",
           service_details: {
             ...formData,
-            payment_id: paymentId,
-            amount_paid: 500,
-            submitted_at: new Date().toISOString()
+            payment_redirected: true,
+            status: "Pending"
           }
         }]);
 
       if (error) throw error;
-      setStep(4);
+      
+      // Save data to localStorage for the success page (PDF generation)
+      localStorage.setItem("paddlog_last_booking", JSON.stringify({
+        formData,
+        serviceTitle: selectedService?.title
+      }));
+
+      // Redirect to personalized Razorpay link as requested
+      const paymentLink = "https://rzp.io/rzp/P5iinaz";
+      window.location.href = paymentLink;
+      
     } catch (err) {
       console.error("Booking submission error:", err);
-      alert("Booking saved but there was an error updating status. Our team will contact you.");
-      setStep(4); // Still move to success for better UX
+      // Even on error, we try to let them pay if they want
+      window.location.href = "https://rzp.io/rzp/P5iinaz";
     } finally {
       setLoading(false);
     }
   };
 
+
   const handleNext = () => {
+
     if (step === 1 && !formData.serviceId) return;
     if (step === 2 && !validate()) return;
     if (step === 3) {
@@ -167,7 +147,7 @@ export default function BookServicePage() {
   return (
     <main className="min-h-screen bg-[#f8fafc] font-body relative">
       <Navbar />
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+
 
       <div className="pt-32 pb-12 bg-white">
         <div className="container mx-auto px-6 text-center">
@@ -188,14 +168,14 @@ export default function BookServicePage() {
                 {step === 1 && <Step1Service key="1" selectedId={formData.serviceId} onSelect={(id: string) => updateForm("serviceId", id)} />}
                 {step === 2 && <Step2Details key="2" formData={formData} updateForm={updateForm} errors={errors} />}
                 {step === 3 && <Step3Review key="3" formData={formData} service={selectedService} />}
-                {step === 4 && <Step4Done key="4" />}
+                {step === 4 && <Step4Done key="4"  />}
               </AnimatePresence>
 
               {step < 4 && (
                 <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between">
                   <button onClick={() => setStep(s => Math.max(1, s - 1))} className={cn("px-10 py-5 rounded-2xl border border-slate-200 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all", (step === 1) && "invisible")}>Back</button>
                   <button onClick={handleNext} disabled={loading} className="group/btn relative inline-flex items-center gap-3 red-gradient text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.15em] text-[10px] shadow-[0_15px_30px_-10px_rgba(239,68,68,0.5)] active:scale-95 transition-all">
-                    {step === 3 ? "Submit Requirement" : "Next Step"}
+                    {step === 3 ? "Book & Pay Now" : "Next Step"}
                     <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                   </button>
                 </div>
@@ -411,12 +391,9 @@ function Step4Done() {
       animate={{ scale: 1, opacity: 1 }}
       className="text-center py-20"
     >
-      <div className="w-24 h-24 bg-emerald-500 text-white rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-xl shadow-emerald-500/20">
-        <Check size={48} strokeWidth={4} />
-      </div>
-      <h2 className="text-5xl font-black text-slate-900 mb-6 tracking-tight uppercase italic">Requirement Sent!</h2>
-      <p className="text-slate-500 max-w-md mx-auto font-bold mb-10">Your enquiry has been assigned to a senior DG specialist. We will contact you within the next 15 minutes.</p>
-      <button onClick={() => window.location.href = '/'} className="red-gradient text-white px-12 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">Return to Dashboard</button>
+      <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-10" />
+      <h2 className="text-4xl font-black text-slate-900 mb-6 tracking-tight uppercase italic">Redirecting to Payment...</h2>
+      <p className="text-slate-500 max-w-md mx-auto font-bold mb-10">Please complete the payment on the Razorpay page. Do not close this window.</p>
     </motion.div>
   );
 }
