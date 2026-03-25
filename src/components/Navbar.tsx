@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Headphones } from "lucide-react";
+import { Menu, X, Headphones, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -105,6 +105,13 @@ export function Navbar() {
             </Link>
 
             <Link
+              href="/pay"
+              className="flex items-center gap-2 border-2 border-primary text-primary px-6 py-3.5 rounded-xl font-black uppercase tracking-[0.12em] text-[10px] hover:bg-primary hover:text-white transition-all active:scale-95 whitespace-nowrap relative z-[1001]"
+            >
+              <CreditCard size={13} />
+              Pay Now
+            </Link>
+            <Link
               href="/book"
               className="red-gradient text-white px-10 py-4 rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-[0_15px_35px_-10px_rgba(239,68,68,0.4)] hover:shadow-red-500/50 hover:-translate-y-0.5 transition-all active:scale-95 whitespace-nowrap relative z-[1001]"
             >
@@ -173,6 +180,14 @@ export function Navbar() {
                       <Headphones size={24} strokeWidth={3} />
                     </div>
                     <span>Global Support</span>
+                  </Link>
+                  <Link
+                    href="/pay"
+                    className="flex items-center justify-center gap-3 rounded-[1.75rem] border-2 border-primary px-4 py-4 text-center text-sm font-black uppercase tracking-[0.2em] text-primary sm:py-5"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <CreditCard size={20} />
+                    Pay Now
                   </Link>
                   <Link
                     href="/book"

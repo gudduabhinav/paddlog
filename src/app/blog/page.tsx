@@ -33,7 +33,7 @@ const blogPosts = [
     author: "Compliance Team",
     icon: Package,
     gradient: "from-red-500 to-rose-600",
-    image: "/dg-hazmat.png",
+    image: "/UN.png",
     content: "UN certified packaging is a fundamental requirement for the transport of dangerous goods. Our experts explain the rigorous testing processes involved and how to interpret the UN specification marks on your containers. From drop tests to leakproofness, every mark counts towards a safer supply chain."
   },
   {
