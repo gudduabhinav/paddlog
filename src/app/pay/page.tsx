@@ -309,7 +309,7 @@ function PayPageInner() {
               </div>
 
               <div className="flex justify-center" id="rzp-btn-container">
-                <div 
+                <form 
                   ref={(node) => {
                     if (node && node.innerHTML === '') {
                       const script = document.createElement('script');
