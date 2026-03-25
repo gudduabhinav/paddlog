@@ -132,7 +132,6 @@ export default function BookServicePage() {
 
 
   const handleNext = () => {
-
     if (step === 1 && !formData.serviceId) return;
     if (step === 2 && !validate()) return;
     if (step === 3) {
@@ -140,6 +139,7 @@ export default function BookServicePage() {
       return;
     }
     setStep(s => s + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const selectedService = services.find(s => s.id === formData.serviceId);

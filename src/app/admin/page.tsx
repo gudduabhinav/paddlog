@@ -26,9 +26,10 @@ export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'bookings' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'bookings' | 'payments' | 'settings'>('overview');
   const [contacts, setContacts] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [directPayments, setDirectPayments] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [isAlertActive, setIsAlertActive] = useState(false);
@@ -114,13 +115,15 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [{ data: leads }, { data: shipments }, { data: siteSettings }] = await Promise.all([
+      const [{ data: leads }, { data: shipments }, { data: siteSettings }, { data: payments }] = await Promise.all([
         supabase.from('contacts').select('*').order('created_at', { ascending: false }),
         supabase.from('bookings').select('*').order('created_at', { ascending: false }),
-        supabase.from('site_settings').select('*')
+        supabase.from('site_settings').select('*'),
+        supabase.from('direct_payments').select('*').order('created_at', { ascending: false }),
       ]);
       setContacts(leads || []);
       setBookings(shipments || []);
+      setDirectPayments(payments || []);
       const settingsMap = siteSettings?.reduce((acc: any, curr: any) => { acc[curr.key] = curr.value; return acc; }, {});
       setSettings(settingsMap || {});
     } catch (err) {
@@ -357,6 +360,7 @@ export default function AdminDashboard() {
     { id: 'overview',  icon: LayoutDashboard, label: "Dashboard",       gradient: "from-violet-500 to-purple-600", alert: false },
     { id: 'leads',     icon: Users,           label: "Inbound Leads",   gradient: "from-blue-500 to-cyan-500",     alert: newLeadsAlert,    count: contacts.length },
     { id: 'bookings',  icon: Package,         label: "Shipment Orders", gradient: "from-emerald-500 to-teal-500",  alert: newBookingsAlert,  count: bookings.length },
+    { id: 'payments',  icon: CreditCard,      label: "Direct Payments", gradient: "from-rose-500 to-pink-600",    alert: false,             count: directPayments.length },
     { id: 'settings',  icon: Settings2,       label: "Site Control",    gradient: "from-orange-500 to-amber-500",  alert: false },
   ];
 
@@ -939,6 +943,116 @@ export default function AdminDashboard() {
                             </motion.tr>
                           );
                         })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── DIRECT PAYMENTS ──────────────────── */}
+          {activeTab === 'payments' && (
+            <div className="max-w-7xl mx-auto font-roboto">
+              <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-slate-900 font-black text-lg">Direct Payments</h2>
+                    <p className="text-slate-400 text-[10px] mt-0.5 font-black uppercase tracking-[0.2em]">{directPayments.length} records · via /pay page</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <a href="/pay" target="_blank" className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-red-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                      <CreditCard size={13} /> Open Pay Page
+                    </a>
+                    <button onClick={() => exportToCSV(directPayments, 'direct_payments')} className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                      <Download size={13} /> Export CSV
+                    </button>
+                  </div>
+                </div>
+                {directPayments.length === 0 ? (
+                  <div className="p-20 text-center">
+                    <CreditCard size={40} className="text-slate-200 mx-auto mb-4" />
+                    <p className="text-slate-400 font-bold">No direct payments yet.</p>
+                    <p className="text-slate-300 text-xs font-bold mt-1">Share <span className="font-black text-slate-400">/pay</span> link with customers to start collecting payments.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-slate-100">
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Customer</th>
+                          <th className="hidden md:table-cell px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
+                          <th className="hidden sm:table-cell px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Service</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Amount</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date</th>
+                          <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {directPayments.map((p, idx) => (
+                          <motion.tr
+                            key={p.id}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.03 }}
+                            className="hover:bg-slate-50 transition-all group"
+                          >
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-3">
+                                <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0 text-white font-black text-sm shadow-md", ICON_GRADIENTS[idx % ICON_GRADIENTS.length])}>
+                                  {(p.customer_name || '?')[0].toUpperCase()}
+                                </div>
+                                <div className="font-black text-sm text-slate-900">{p.customer_name}</div>
+                              </div>
+                            </td>
+                            <td className="hidden md:table-cell px-6 py-5">
+                              <div className="text-slate-900 text-sm font-black">{p.customer_phone}</div>
+                              <div className="text-slate-400 text-[10px] mt-0.5 font-bold truncate max-w-[160px]">{p.customer_email}</div>
+                            </td>
+                            <td className="hidden sm:table-cell px-6 py-5">
+                              <span className="px-3 py-1.5 bg-slate-100 border border-slate-200 text-slate-600 text-[10px] font-black rounded-xl uppercase tracking-widest shadow-sm">
+                                {p.service_type}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-slate-900 font-black text-sm">₹{Number(p.amount).toLocaleString('en-IN')}</span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <select
+                                value={p.status || 'pending'}
+                                onChange={async (e) => {
+                                  await supabase.from('direct_payments').update({ status: e.target.value }).eq('id', p.id);
+                                  setDirectPayments(prev => prev.map(x => x.id === p.id ? { ...x, status: e.target.value } : x));
+                                }}
+                                className={cn(
+                                  "text-[10px] font-black uppercase px-3 py-2 rounded-xl border cursor-pointer tracking-widest appearance-none min-w-[90px] shadow-sm",
+                                  p.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                  p.status === 'failed' ? 'bg-red-50 text-red-700 border-red-200' :
+                                  'bg-amber-50 text-amber-700 border-amber-200'
+                                )}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="paid">Paid</option>
+                                <option value="failed">Failed</option>
+                              </select>
+                            </td>
+                            <td className="px-6 py-5 text-slate-400 text-[11px] font-black uppercase">
+                              {new Date(p.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </td>
+                            <td className="px-6 py-5">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  onClick={() => setDeleteId({ table: 'direct_payments', id: p.id })}
+                                  className="w-9 h-9 flex items-center justify-center bg-white hover:bg-red-600 text-slate-400 hover:text-white border border-slate-200 hover:border-red-600 rounded-xl transition-all shadow-sm"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
