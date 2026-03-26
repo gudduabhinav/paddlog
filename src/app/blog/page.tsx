@@ -78,8 +78,8 @@ export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedPost, setSelectedPost] = useState<any>(null);
 
-  const filteredPosts = activeCategory === "All" 
-    ? blogPosts 
+  const filteredPosts = activeCategory === "All"
+    ? blogPosts
     : blogPosts.filter(p => p.category === activeCategory);
 
   return (
@@ -102,7 +102,7 @@ export default function BlogPage() {
             className="text-center max-w-3xl mx-auto"
           >
             <span className="text-primary font-bold uppercase tracking-[0.3em] text-xs mb-4 block">Paddlog Insights</span>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-slate-900">The DG <span className="text-primary italic">Playbook</span></h1>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-slate-900">The DG <span className="text-primary ">Playbook</span></h1>
             <p className="text-slate-500 text-lg md:text-xl leading-relaxed">
               Professional guidance, regulatory updates, and expert tips on hazardous material logistics.
             </p>
@@ -120,8 +120,8 @@ export default function BlogPage() {
                 onClick={() => setActiveCategory(cat)}
                 className={cn(
                   "px-6 py-2 rounded-full font-bold text-sm transition-all border",
-                  activeCategory === cat 
-                    ? "bg-primary border-primary text-white shadow-premium" 
+                  activeCategory === cat
+                    ? "bg-primary border-primary text-white shadow-premium"
                     : "bg-white border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30"
                 )}
               >
@@ -161,35 +161,35 @@ export default function BlogPage() {
                         <post.icon size={48} className="text-white" />
                       </div>
                     )}
-                    
+
                     <div className="p-8 flex-grow flex flex-col">
-                    
-                    <div className="flex items-center gap-4 text-xs text-slate-400 mb-4 font-bold uppercase tracking-widest">
-                       <span className="text-primary">{post.category}</span>
-                       <span className="w-1 h-1 rounded-full bg-slate-200" />
-                       <span>{post.date}</span>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4 leading-tight group-hover:text-primary transition-colors">
-                      {post.title}
-                    </h3>
-                    
-                    <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
-                      {post.blurb}
-                    </p>
-                    
-                    <div className="flex items-center justify-between pt-6 border-t border-slate-50 mt-auto">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                          <User size={14} className="text-slate-400" />
-                        </div>
-                        <span className="text-xs text-slate-500 font-bold">{post.author}</span>
+
+                      <div className="flex items-center gap-4 text-xs text-slate-400 mb-4 font-bold uppercase tracking-widest">
+                        <span className="text-primary">{post.category}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-200" />
+                        <span>{post.date}</span>
                       </div>
-                      <ArrowRight size={20} className="text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+
+                      <h3 className="text-2xl font-bold text-slate-900 mb-4 leading-tight group-hover:text-primary transition-colors">
+                        {post.title}
+                      </h3>
+
+                      <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
+                        {post.blurb}
+                      </p>
+
+                      <div className="flex items-center justify-between pt-6 border-t border-slate-50 mt-auto">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                            <User size={14} className="text-slate-400" />
+                          </div>
+                          <span className="text-xs text-slate-500 font-bold">{post.author}</span>
+                        </div>
+                        <ArrowRight size={20} className="text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
               ))}
             </AnimatePresence>
           </div>
@@ -206,57 +206,57 @@ export default function BlogPage() {
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10"
           >
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onClick={() => setSelectedPost(null)} />
-            
+
             <motion.div
               layoutId={selectedPost.id}
               className="relative bg-white border border-slate-200 w-full max-w-4xl max-h-full overflow-y-auto rounded-[3rem] p-8 md:p-16 custom-scrollbar shadow-2xl"
             >
-               <button 
-                 onClick={() => setSelectedPost(null)}
-                 className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors bg-slate-50 w-8 h-8 rounded-full flex items-center justify-center font-bold"
-               >
-                 ✕
-               </button>
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors bg-slate-50 w-8 h-8 rounded-full flex items-center justify-center font-bold"
+              >
+                ✕
+              </button>
 
-               <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-8 bg-gradient-to-r text-white", selectedPost.gradient)}>
-                 {selectedPost.category}
-               </div>
+              <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-8 bg-gradient-to-r text-white", selectedPost.gradient)}>
+                {selectedPost.category}
+              </div>
 
-               <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight text-slate-900">{selectedPost.title}</h2>
-               
-               <div className="flex items-center gap-6 mb-10 text-slate-400 text-sm font-medium">
-                 <div className="flex items-center gap-2">
-                   <Calendar size={16} />
-                   {selectedPost.date}
-                 </div>
-                 <div className="flex items-center gap-2">
-                   <User size={16} />
-                   By {selectedPost.author}
-                 </div>
-               </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight text-slate-900">{selectedPost.title}</h2>
 
-               <div className="prose prose-slate max-w-none">
-                 <p className="text-xl text-slate-600 leading-relaxed font-medium italic mb-10 border-l-4 border-primary pl-6">
-                    {selectedPost.blurb}
-                 </p>
-                 <div className="text-slate-500 text-lg leading-relaxed whitespace-pre-wrap">
-                    {selectedPost.content}
-                    {"\n\n"}
-                    Our team at Paddlog specializes in these complex operations, ensuring that your chemical shipments move through global channels with zero friction. Whether you are shipping Lithium batteries or Class 3 flammables, the principles of UN containment remain the same: Test, Mark, and Inspect.
-                    {"\n\n"}
-                    Stay tuned for more updates on IMO regulations for 2026.
-                 </div>
-               </div>
-               
-               <div className="mt-16 p-8 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-                 <div>
-                   <h4 className="text-xl font-bold mb-2 text-slate-900">Have specific project questions?</h4>
-                   <p className="text-slate-500">Our DG specialists are available 24/7 for consultation.</p>
-                 </div>
-                 <a href="/contact" className="red-gradient px-8 py-4 rounded-2xl font-bold shadow-premium hover:shadow-red-glow transition-all text-white">
-                   Contact Specialists
-                 </a>
-               </div>
+              <div className="flex items-center gap-6 mb-10 text-slate-400 text-sm font-medium">
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} />
+                  {selectedPost.date}
+                </div>
+                <div className="flex items-center gap-2">
+                  <User size={16} />
+                  By {selectedPost.author}
+                </div>
+              </div>
+
+              <div className="prose prose-slate max-w-none">
+                <p className="text-xl text-slate-600 leading-relaxed font-medium  mb-10 border-l-4 border-primary pl-6">
+                  {selectedPost.blurb}
+                </p>
+                <div className="text-slate-500 text-lg leading-relaxed whitespace-pre-wrap">
+                  {selectedPost.content}
+                  {"\n\n"}
+                  Our team at Paddlog specializes in these complex operations, ensuring that your chemical shipments move through global channels with zero friction. Whether you are shipping Lithium batteries or Class 3 flammables, the principles of UN containment remain the same: Test, Mark, and Inspect.
+                  {"\n\n"}
+                  Stay tuned for more updates on IMO regulations for 2026.
+                </div>
+              </div>
+
+              <div className="mt-16 p-8 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                  <h4 className="text-xl font-bold mb-2 text-slate-900">Have specific project questions?</h4>
+                  <p className="text-slate-500">Our DG specialists are available 24/7 for consultation.</p>
+                </div>
+                <a href="/contact" className="red-gradient px-8 py-4 rounded-2xl font-bold shadow-premium hover:shadow-red-glow transition-all text-white">
+                  Contact Specialists
+                </a>
+              </div>
             </motion.div>
           </motion.div>
         )}

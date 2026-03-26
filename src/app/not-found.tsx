@@ -11,16 +11,16 @@ export default function NotFound() {
   return (
     <main className="min-h-screen bg-[#0a0f1e] flex flex-col font-body">
       <Navbar />
-      
+
       <div className="flex-1 flex flex-center flex-col items-center justify-center px-6 py-24 text-center relative overflow-hidden">
         {/* Animated Background Elements */}
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             rotate: [0, 360],
             scale: [1, 1.2, 1]
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full pointer-events-none"
         />
 
         <motion.div
@@ -31,7 +31,7 @@ export default function NotFound() {
         >
           {/* Plane Animation */}
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, -20, 0],
               rotate: [0, -5, 0]
             }}
@@ -44,13 +44,13 @@ export default function NotFound() {
           <h1 className="text-8xl md:text-9xl font-bold text-white mb-4 tracking-tighter">
             4<span className="text-primary">0</span>4
           </h1>
-          
+
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
-            Oops! This Shipment is <span className="text-primary italic">Off-Course</span>
+            Oops! This Shipment is <span className="text-primary ">Off-Course</span>
           </h2>
-          
+
           <p className="text-slate-400 max-w-md mx-auto mb-10 text-lg">
-            The page you are looking for has been rerouted or never reached our departure gate. 
+            The page you are looking for has been rerouted or never reached our departure gate.
             Let's get you back to safety.
           </p>
 
@@ -65,7 +65,7 @@ export default function NotFound() {
                 Back to Home
               </motion.button>
             </Link>
-            
+
             <Link href="/services">
               <motion.button
                 whileHover={{ scale: 1.05 }}

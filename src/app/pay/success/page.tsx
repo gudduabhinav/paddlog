@@ -159,7 +159,7 @@ export default function PaySuccessPage() {
             <div className="w-20 h-20 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-amber-100">
               <ShieldCheck size={40} className="text-amber-500" />
             </div>
-            <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight uppercase italic">No Session Found</h1>
+            <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight uppercase ">No Session Found</h1>
             <p className="text-slate-500 font-bold mb-10 max-w-xs mx-auto text-sm leading-relaxed">
               We couldn't find a recent payment session. Please check your email for the Razorpay confirmation.
             </p>
@@ -191,7 +191,7 @@ export default function PaySuccessPage() {
                 </div>
                 <div className="text-center md:text-left">
                   <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] mb-2">Transaction Verified</div>
-                  <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3 italic uppercase">
+                  <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-3  uppercase">
                     Payment Done!
                   </h1>
                   <p className="text-slate-500 font-bold text-sm max-w-sm">
@@ -269,7 +269,7 @@ export default function PaySuccessPage() {
               className="bg-slate-900 text-white rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-6"
             >
               <div>
-                <h4 className="text-lg font-black uppercase italic mb-1">What happens next?</h4>
+                <h4 className="text-lg font-black uppercase  mb-1">What happens next?</h4>
                 <p className="text-slate-400 text-xs font-bold leading-relaxed max-w-sm">
                   Our team will reach out to you at <span className="text-white font-black">{data.phone}</span> within 15 minutes to confirm your order and provide shipment details.
                 </p>

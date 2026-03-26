@@ -110,7 +110,7 @@ export default function BookServicePage() {
         }]);
 
       if (error) throw error;
-      
+
       // Save data to localStorage for the success page (PDF generation)
       localStorage.setItem("paddlog_last_booking", JSON.stringify({
         formData,
@@ -120,7 +120,7 @@ export default function BookServicePage() {
       // Redirect to personalized Razorpay link as requested
       const paymentLink = "https://rzp.io/rzp/P5iinaz";
       window.location.href = paymentLink;
-      
+
     } catch (err) {
       console.error("Booking submission error:", err);
       // Even on error, we try to let them pay if they want
@@ -151,7 +151,7 @@ export default function BookServicePage() {
 
       <div className="pt-32 pb-12 bg-white">
         <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">Expert <span className="text-primary italic">DG Booking</span> Portal</h1>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">Expert <span className="text-primary ">DG Booking</span> Portal</h1>
           <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-4">Safe. Compliant. Certified.</p>
         </div>
       </div>
@@ -168,7 +168,7 @@ export default function BookServicePage() {
                 {step === 1 && <Step1Service key="1" selectedId={formData.serviceId} onSelect={(id: string) => updateForm("serviceId", id)} />}
                 {step === 2 && <Step2Details key="2" formData={formData} updateForm={updateForm} errors={errors} />}
                 {step === 3 && <Step3Review key="3" formData={formData} service={selectedService} />}
-                {step === 4 && <Step4Done key="4"  />}
+                {step === 4 && <Step4Done key="4" />}
               </AnimatePresence>
 
               {step < 4 && (
@@ -264,7 +264,7 @@ export default function BookServicePage() {
                   </motion.div>
                 )}
               </AnimatePresence>
-              {!showUNHub && <p className="text-[10px] text-slate-400 mt-4 font-bold italic line-clamp-1">Quickly check hazardous material classifications...</p>}
+              {!showUNHub && <p className="text-[10px] text-slate-400 mt-4 font-bold  line-clamp-1">Quickly check hazardous material classifications...</p>}
             </div>
 
           </div>
@@ -392,7 +392,7 @@ function Step4Done() {
       className="text-center py-20"
     >
       <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-10" />
-      <h2 className="text-4xl font-black text-slate-900 mb-6 tracking-tight uppercase italic">Redirecting to Payment...</h2>
+      <h2 className="text-4xl font-black text-slate-900 mb-6 tracking-tight uppercase ">Redirecting to Payment...</h2>
       <p className="text-slate-500 max-w-md mx-auto font-bold mb-10">Please complete the payment on the Razorpay page. Do not close this window.</p>
     </motion.div>
   );

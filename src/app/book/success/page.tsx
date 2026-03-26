@@ -23,23 +23,23 @@ export default function BookingSuccessPage() {
     if (!bookingData) return;
     const { formData, serviceTitle } = bookingData;
     const name = formData.name || 'Customer';
-    const date = new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+    const date = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
     const logoUrl = window.location.origin + '/paddlog-logo.png';
 
     const SKIP = ['serviceId', 'submitted_at', 'payment_redirected'];
-    const LABELS: any = { 
-      name: 'Customer Name', company: 'Company', email: 'Email', phone: 'Phone', 
-      commodity: 'Commodity', weight: 'Weight', dimensions: 'Dimensions', 
+    const LABELS: any = {
+      name: 'Customer Name', company: 'Company', email: 'Email', phone: 'Phone',
+      commodity: 'Commodity', weight: 'Weight', dimensions: 'Dimensions',
       quantity: 'Quantity', collection_address: 'Collection Address', msds: 'MSDS Status'
     };
-    const getLabel = (k: string) => LABELS[k] || k.replace(/([A-Z])/g,' $1').replace(/_/g,' ').trim();
+    const getLabel = (k: string) => LABELS[k] || k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
     const fmtVal = (v: any) => { if (typeof v === 'boolean') return v ? 'Yes' : 'No'; return String(v); };
-    
-    const rows = Object.entries(formData).filter(([k,v]) => 
+
+    const rows = Object.entries(formData).filter(([k, v]) =>
       !SKIP.includes(k) && v !== null && v !== undefined && v !== ''
     );
 
-    const detailRows = rows.map(([k,v]) => `
+    const detailRows = rows.map(([k, v]) => `
       <tr>
         <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap">${getLabel(k)}</td>
         <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;color:#1e293b;font-size:13px;font-weight:600;text-align:right">${fmtVal(v)}</td>
@@ -98,7 +98,7 @@ export default function BookingSuccessPage() {
   <script>window.onload=function(){window.print();}<\/script>
 </body></html>`;
 
-    const win = window.open('','_blank');
+    const win = window.open('', '_blank');
     if (win) { win.document.write(html); win.document.close(); }
   };
 
@@ -117,26 +117,26 @@ export default function BookingSuccessPage() {
 
       <div className="pt-32 pb-20 container mx-auto px-6 max-w-4xl min-h-[85vh] flex flex-col justify-center">
         {!bookingData ? (
-          <motion.div 
-             initial={{ opacity: 0, scale: 0.95 }}
-             animate={{ opacity: 1, scale: 1 }}
-             className="bg-white border-2 border-slate-100 rounded-[3rem] p-12 md:p-20 text-center shadow-2xl relative overflow-hidden"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white border-2 border-slate-100 rounded-[3rem] p-12 md:p-20 text-center shadow-2xl relative overflow-hidden"
           >
             <div className="absoulte top-0 left-0 w-full h-2 bg-slate-100" />
             <div className="w-20 h-20 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-amber-100">
-               <ShieldCheck size={40} className="text-amber-500" />
+              <ShieldCheck size={40} className="text-amber-500" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight uppercase italic">No Record Found</h1>
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight uppercase ">No Record Found</h1>
             <p className="text-slate-500 font-bold mb-10 max-w-sm mx-auto leading-relaxed text-sm">We couldn't detect a recent payment session. If you have just paid, please check your email for the Razorpay receipt.</p>
             <button onClick={() => window.location.href = '/book'} className="red-gradient text-white px-10 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-red-500/20 active:scale-95 transition-all">Start New Booking</button>
           </motion.div>
         ) : (
           <div className="space-y-8">
             {/* Main Success Card */}
-            <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               className="bg-white border-2 border-slate-100 rounded-[3rem] p-12 md:p-16 shadow-2xl relative overflow-hidden"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white border-2 border-slate-100 rounded-[3rem] p-12 md:p-16 shadow-2xl relative overflow-hidden"
             >
               {/* Animated Success Seal */}
               <div className="absolute top-0 right-0 p-12 opacity-5 rotate-12 -translate-y-4 translate-x-4">
@@ -149,35 +149,35 @@ export default function BookingSuccessPage() {
                 </div>
                 <div className="text-center md:text-left">
                   <div className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] mb-3 leading-none">Authentication Successful</div>
-                  <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4 italic uppercase">Payment Confirmed</h1>
+                  <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4  uppercase">Payment Confirmed</h1>
                   <p className="text-slate-500 font-bold text-sm max-w-md">Thank you for choosing <span className="text-slate-900 underline decoration-primary decoration-4 underline-offset-4">Paddlog DG Solutions</span>. Your logistical requirement is now in processing.</p>
                 </div>
               </div>
 
               <div className="mt-16 pt-12 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-                 <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Customer</span>
-                    <span className="text-slate-900 font-black text-sm block uppercase truncate">{bookingData.formData.name}</span>
-                 </div>
-                 <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Operation</span>
-                    <span className="text-slate-900 font-black text-sm block uppercase truncate">{bookingData.serviceTitle}</span>
-                 </div>
-                 <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl">
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Transaction Status</span>
-                    <span className="text-emerald-700 font-black text-sm block uppercase">Verified ✓</span>
-                 </div>
+                <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Customer</span>
+                  <span className="text-slate-900 font-black text-sm block uppercase truncate">{bookingData.formData.name}</span>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Operation</span>
+                  <span className="text-slate-900 font-black text-sm block uppercase truncate">{bookingData.serviceTitle}</span>
+                </div>
+                <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl">
+                  <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Transaction Status</span>
+                  <span className="text-emerald-700 font-black text-sm block uppercase">Verified ✓</span>
+                </div>
               </div>
 
               <div className="mt-12 flex flex-col sm:flex-row gap-4 relative z-10">
-                <button 
+                <button
                   onClick={exportToPDF}
                   className="flex-1 bg-slate-900 hover:bg-slate-800 text-white px-10 py-5 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
                 >
                   <Download size={18} />
                   Download Receipt (PDF)
                 </button>
-                <button 
+                <button
                   onClick={() => window.location.href = '/'}
                   className="px-10 py-5 bg-white border border-slate-200 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-500 hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
                 >
@@ -188,24 +188,24 @@ export default function BookingSuccessPage() {
             </motion.div>
 
             {/* Assistance Card */}
-            <motion.div 
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.2 }}
-               className="bg-slate-900 text-white rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-6"
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-slate-900 text-white rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-6"
             >
-               <div className="flex items-center gap-6">
-                 <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-primary">
-                    <Package size={28} />
-                 </div>
-                 <div>
-                   <h4 className="text-lg font-black uppercase italic">Urgent Support?</h4>
-                   <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Our DG specialists are tracking your shipment.</p>
-                 </div>
-               </div>
-               <a href="tel:+917093777026" className="w-full md:w-auto bg-primary text-white px-8 py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-red-600 transition-colors">
-                  Contact Support
-               </a>
+              <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-primary">
+                  <Package size={28} />
+                </div>
+                <div>
+                  <h4 className="text-lg font-black uppercase ">Urgent Support?</h4>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Our DG specialists are tracking your shipment.</p>
+                </div>
+              </div>
+              <a href="tel:+917093777026" className="w-full md:w-auto bg-primary text-white px-8 py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-red-600 transition-colors">
+                Contact Support
+              </a>
             </motion.div>
           </div>
         )}

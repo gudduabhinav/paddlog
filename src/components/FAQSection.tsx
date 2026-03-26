@@ -50,7 +50,7 @@ export function FAQSection() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
-            Frequently Asked <span className="text-primary italic">Questions</span>
+            Frequently Asked <span className="text-primary ">Questions</span>
           </motion.h2>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto">
             Everything you need to know about our specialized dangerous goods logistics services.
@@ -89,7 +89,7 @@ export function FAQSection() {
                     {isOpen ? <Minus size={20} /> : <Plus size={20} />}
                   </div>
                 </button>
-                
+
                 <AnimatePresence>
                   {isOpen && (
                     <motion.div

@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
     <main className="min-h-screen bg-white">
       <Navbar />
       <div className="pt-32 pb-24 container mx-auto px-6 max-w-4xl">
-        <h1 className="text-4xl md:text-5xl font-bold text-secondary mb-6">Privacy <span className="text-primary italic">Policy</span></h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-secondary mb-6">Privacy <span className="text-primary ">Policy</span></h1>
         <p className="text-slate-500 mb-10">Last updated: {new Date().toLocaleDateString()}</p>
 
         <div className="space-y-8 text-slate-700 leading-relaxed">
