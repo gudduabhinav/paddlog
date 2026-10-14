@@ -187,8 +187,8 @@ export default function About() {
               <div className="hidden md:block w-1/2 pr-8 text-right">
                 <TimelineCard
                   year="2024"
-                  title="Mumbai & Chennai"
-                  desc="Strengthened our West and South presence with robust hubs in Mumbai and Chennai."
+                  title="Navi Mumbai & Chennai"
+                  desc="Strengthened our West and South presence with robust hubs in Navi Mumbai and Chennai."
                   direction="left"
                 />
               </div>
@@ -196,8 +196,8 @@ export default function About() {
               <div className="md:hidden w-full pl-8">
                 <TimelineCard
                   year="2024"
-                  title="Mumbai & Chennai"
-                  desc="Strengthened our West and South presence with robust hubs in Mumbai and Chennai."
+                  title="Navi Mumbai & Chennai"
+                  desc="Strengthened our West and South presence with robust hubs in Navi Mumbai and Chennai."
                   direction="right"
                 />
               </div>

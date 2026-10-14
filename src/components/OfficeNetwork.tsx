@@ -30,10 +30,12 @@ const offices: Office[] = [
     featured: true,
   },
   {
-    city: "Mumbai",
+    city: "Navi Mumbai",
     tag: "Branch Office",
-    address: ["Mumbai, Maharashtra, India"],
+    address: ["Near Navi Mumbai Airport"],
     summary: "Key gateway for western India cargo movements and time-critical export handling.",
+    contactPhone: "7386107071",
+    contactEmail: "bomops@paddlog.com",
   },
   {
     city: "Chennai",

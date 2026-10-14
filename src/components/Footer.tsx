@@ -58,7 +58,7 @@ export function Footer() {
               <li className="space-y-1.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Branches</p>
                 <p className="text-sm font-semibold text-slate-600">
-                  Bangalore &bull; Mumbai &bull; Chennai &bull; Gujarat
+                  Bangalore &bull; Navi Mumbai &bull; Chennai &bull; Gujarat
                 </p>
               </li>
 
@@ -91,6 +91,7 @@ export function Footer() {
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-700 text-xs">Hydops@paddlog.com</span>
                     <span className="font-bold text-slate-700 text-xs">Blrops@paddlog.com</span>
+                    <span className="font-bold text-slate-700 text-xs">bomops@paddlog.com</span>
                   </div>
                 </div>
               </li>
